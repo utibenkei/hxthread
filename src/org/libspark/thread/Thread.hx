@@ -27,11 +27,11 @@
  */
 package org.libspark.thread;
 
-import org.libspark.thread.ReferenceError;
 
 import flash.events.Event;
 import flash.events.IEventDispatcher;
 import flash.utils.Dictionary;
+import haxe.Constraints.Function;
 
 
 

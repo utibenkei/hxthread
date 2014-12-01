@@ -27,7 +27,7 @@
  */
 package org.libspark.thread.errors;
 
-import nme.errors.Error;
+import flash.errors.Error;
 
 /**
 	 * ThreadLibraryNotInitializedError 例外は、 Thread Library が初期化されていない状態でスレッドを実行しようするとスローされます.

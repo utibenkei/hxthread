@@ -27,7 +27,7 @@
  */
 package org.libspark.thread.errors;
 
-import nme.errors.Error;
+import flash.errors.Error;
 
 /**
 	 * IllegalThreadStateError 例外は、スレッドの状態が不正な場合にスローされます.

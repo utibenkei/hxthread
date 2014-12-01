@@ -27,7 +27,8 @@
  */
 package org.libspark.thread.errors;
 
-import nme.errors.Error;
+import flash.errors.Error;
+
 
 /**
 	 * CurrentThreadNotFoundError 例外は、カレントスレッドが必要とされる場面でカレントスレッドが見つからない (null の場合) にスローされます.

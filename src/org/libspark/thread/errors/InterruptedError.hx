@@ -27,7 +27,7 @@
  */
 package org.libspark.thread.errors;
 
-import nme.errors.Error;
+import flash.errors.Error;
 
 /**
 	 * InterruptedError 例外は、スレッドが待機中に割り込まれ、かつ割り込みハンドラが設定されていない場合にスローされます.
