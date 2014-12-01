@@ -59,7 +59,7 @@ class Monitor implements IMonitor
 		 */
     private function getWaitors() : Array<Dynamic>
     {
-        return _waitors || (_waitors = []);
+        return (_waitors != null) ? _waitors : (_waitors = []);
     }
     
     /**

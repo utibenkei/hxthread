@@ -258,7 +258,7 @@ class Thread extends Monitor
 		 */
     private static function getUncaughtErrorHandler() : Function
     {
-        return uncaughtErrorHandler || defaultUncaughtErrorHandler;
+		return (uncaughtErrorHandler != null) ? uncaughtErrorHandler : defaultUncaughtErrorHandler;
     }
     
     /**
@@ -270,7 +270,7 @@ class Thread extends Monitor
 		 */
     private static function defaultUncaughtErrorHandler(e : Dynamic, t : Thread) : Void
     {
-        trace(((t != null) ? Std.string(t) + " " : "") + (Std.is(e, (Error) ? cast((e), Error).getStackTrace() : Std.string(e))));
+        trace(((t != null) ? Std.string(t) + " " : "") + (Std.is(e, (Error != null) ? cast((e), Error).getStackTrace() : Std.string(e))));
     }
     
     /**
@@ -728,7 +728,7 @@ class Thread extends Monitor
 		 */
     private function getJoinMonitor() : IMonitor
     {
-        return _joinMonitor || (_joinMonitor = new Monitor());
+        return (_joinMonitor != null) ? _joinMonitor : (_joinMonitor = new Monitor());
     }
     
     /**
@@ -792,7 +792,7 @@ class Thread extends Monitor
 		 */
     private function getChildren() : Array<Dynamic>
     {
-        return _children || (_children = []);
+        return (_children != null) ? _children : (_children = []);
     }
     
     /**
@@ -814,7 +814,7 @@ class Thread extends Monitor
 		 */
     private function getErrorHandlers() : Dictionary
     {
-        return _errorHandlers || (_errorHandlers = new Dictionary());
+        return (_errorHandlers != null) ? _errorHandlers : (_errorHandlers = new Dictionary());
     }
     
     /**
@@ -916,7 +916,7 @@ class Thread extends Monitor
 		 */
     private function getEventMonitor() : IMonitor
     {
-        return _eventMonitor || (_eventMonitor = new Monitor());
+        return (_eventMonitor != null) ? _eventMonitor : (_eventMonitor = new Monitor());
     }
     
     /**
@@ -927,7 +927,7 @@ class Thread extends Monitor
 		 */
     private function getEventHandlers() : Array<Dynamic>
     {
-        return _eventHandlers || (_eventHandlers = []);
+        return (_eventHandlers != null) ? _eventHandlers : (_eventHandlers = []);
     }
     
     /**
@@ -1043,7 +1043,7 @@ class Thread extends Monitor
         
         
         var error : Dynamic = _error;
-        var errorThread : Thread = _errorThread || this;
+        var errorThread : Thread = (_errorThread != null) ? _errorThread : this;
         
         // すべての子スレッドを呼び出す
         var children : Array<Dynamic> = _children;
