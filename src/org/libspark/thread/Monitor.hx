@@ -181,7 +181,11 @@ class Monitor implements IMonitor
         
         
         
-        _waitors.length = 0;
+		#if (cpp || php)
+		_waitors.splice(0,_waitors.length);
+		#else
+		untyped _waitors.length = 0;
+		#end
         
         // 例外が発生していた場合は再スロー
         if (ex != null) {

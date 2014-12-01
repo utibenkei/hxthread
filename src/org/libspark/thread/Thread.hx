@@ -167,7 +167,11 @@ class Thread extends Monitor
     {
         _threadIndex = 0;
         _currentThread = null;
-        _toplevelThreads.length = 0;
+		#if (cpp || php)
+		_toplevelThreads.splice(0,_toplevelThreads.length);
+		#else
+		untyped _toplevelThreads.length = 0;
+		#end
         
         // 古い IThreadExecutor の実行を止める
         if (_executor != null) {
@@ -963,7 +967,11 @@ class Thread extends Monitor
         
         
         
-        _eventHandlers.length = 0;
+		#if (cpp || php)
+		_eventHandlers.splice(0,_eventHandlers.length);
+		#else
+		untyped _eventHandlers.length = 0;
+		#end
     }
     
     /**
