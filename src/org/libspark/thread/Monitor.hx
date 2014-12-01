@@ -29,7 +29,7 @@ package org.libspark.thread;
 
 import org.libspark.thread.Thread;
 
-import flash.utils.Dictionary;
+//import flash.utils.Dictionary;
 //import flash.utils.SetTimeout;
 //import flash.utils.ClearTimeout;
 
@@ -49,7 +49,7 @@ class Monitor implements IMonitor
     }
     
     private var _waitors : Array<Dynamic>;
-    private var _timeoutList : Dictionary;
+    private var _timeoutList : Map<String, Int>;//Dictionary;
     
     /**
 		 * ウェイトセットを返します.
@@ -73,7 +73,7 @@ class Monitor implements IMonitor
     {
         // マップがなければ生成
         if (_timeoutList == null) {
-            _timeoutList = new Dictionary();
+            _timeoutList = new Map();//new Dictionary();
         }  // タイムアウトを設定して、thread をキーにして タイムアウトID を保存  
         
         

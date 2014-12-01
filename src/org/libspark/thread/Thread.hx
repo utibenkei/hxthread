@@ -32,7 +32,7 @@ import flash.errors.Error;
 import flash.errors.ReferenceError;
 import flash.events.Event;
 import flash.events.IEventDispatcher;
-import flash.utils.Dictionary;
+//import flash.utils.Dictionary;
 import haxe.Constraints.Function;
 
 
@@ -516,7 +516,7 @@ class Thread extends Monitor
     private var _sleepMonitor : IMonitor;
     private var _eventMonitor : IMonitor;
     private var _event : Event;
-    private var _errorHandlers : Dictionary;
+    private var _errorHandlers : Map<String, ErrorHandler>;//private var _errorHandlers : Dictionary;
     private var _error : Dynamic;
     private var _errorThread : Thread;
     private var _eventHandlers : Array<Dynamic>;
@@ -812,9 +812,9 @@ class Thread extends Monitor
 		 * @return	エラーハンドラマップ
 		 * @private
 		 */
-    private function getErrorHandlers() : Dictionary
+    private function getErrorHandlers() : Map<String, ErrorHandler>//Dictionary
     {
-        return (_errorHandlers != null) ? _errorHandlers : (_errorHandlers = new Dictionary());
+        return (_errorHandlers != null) ? _errorHandlers : (_errorHandlers = new Map());//new Dictionary()
     }
     
     /**
