@@ -101,7 +101,7 @@ class Monitor implements IMonitor
         // 見つかったらタイムアウトを解除する
         if (id != null) {
             clearTimeout(Int(id));
-            ;
+			Reflect.deleteField(_timeoutList, thread);
         }
     }
     

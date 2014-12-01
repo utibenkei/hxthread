@@ -117,7 +117,7 @@ class TweenerThread extends Thread
     {
         if (Lambda.has(from, name)) {
             Reflect.setField(to, name, Reflect.field(from, name));
-            ;
+			Reflect.deleteField(from, name);
         }
     }
     

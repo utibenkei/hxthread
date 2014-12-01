@@ -835,11 +835,10 @@ class Thread extends Monitor
         // ハンドラマップが存在しなければ何もしない
         if (_errorHandlers == null) {
             return;
-        }  // ハンドラマップから削除  
+        }  
         
-        
-        
-        ;
+		// ハンドラマップから削除  
+		Reflect.deleteField(_errorHandlers, Type.getClassName(klass));
     }
     
     /**
@@ -859,7 +858,7 @@ class Thread extends Monitor
         for (key in Reflect.fields(_errorHandlers)){
             // reset が true であればハンドラを削除する
             if (cast((Reflect.field(_errorHandlers, key)), ErrorHandler).reset) {
-                ;
+                Reflect.deleteField(_errorHandlers, key);
             }
         }
     }
