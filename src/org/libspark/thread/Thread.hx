@@ -28,6 +28,8 @@
 package org.libspark.thread;
 
 
+import flash.errors.Error;
+import flash.errors.ReferenceError;
 import flash.events.Event;
 import flash.events.IEventDispatcher;
 import flash.utils.Dictionary;
