@@ -50,7 +50,7 @@ import org.libspark.thread.Thread;
 import flash.events.EventDispatcher;
 import flash.events.IEventDispatcher;
 
-import flash.utils.SetTimeout;
+//import flash.utils.SetTimeout;
 import org.libspark.thread.ThreadState;
 
 class ThreadCommand extends Command
@@ -187,7 +187,8 @@ class AdapterThread extends Thread
     
     override private function finalize() : Void
     {
-        setTimeout(completeHandler, 1);
+        //setTimeout(completeHandler, 1);
+		untyped __global__["flash.utils.setTimeout"](completeHandler, 1);
     }
     
     private function completeHandler() : Void

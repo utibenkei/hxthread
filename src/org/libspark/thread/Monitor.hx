@@ -30,8 +30,8 @@ package org.libspark.thread;
 import org.libspark.thread.Thread;
 
 import flash.utils.Dictionary;
-import flash.utils.SetTimeout;
-import flash.utils.ClearTimeout;
+//import flash.utils.SetTimeout;
+//import flash.utils.ClearTimeout;
 
 /**
 	 * Monitor クラスは IMonitor インターフェイスの実装クラスで、モニタ機構の最も一般的な実装を提供します.
@@ -78,7 +78,8 @@ class Monitor implements IMonitor
         
         
         
-        Reflect.setField(_timeoutList, Std.string(thread), setTimeout(timeoutHandler, timeout, thread));
+        //Reflect.setField(_timeoutList, Std.string(thread), setTimeout(timeoutHandler, timeout, thread));
+		Reflect.setField(_timeoutList, Std.string(thread), untyped __global__["flash.utils.setTimeout"](timeoutHandler, timeout, thread));
     }
     
     /**
@@ -100,7 +101,8 @@ class Monitor implements IMonitor
         
         // 見つかったらタイムアウトを解除する
         if (id != null) {
-            clearTimeout(Int(id));
+            //clearTimeout(Int(id));
+			untyped __global__["flash.utils.clearTimeout"](Int(id));
 			Reflect.deleteField(_timeoutList, thread);
         }
     }
