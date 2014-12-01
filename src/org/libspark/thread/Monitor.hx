@@ -103,7 +103,7 @@ class Monitor implements IMonitor
         if (id != null) {
             //clearTimeout(Int(id));
 			untyped __global__["flash.utils.clearTimeout"](Int(id));
-			Reflect.deleteField(_timeoutList, thread);
+			Reflect.deleteField(_timeoutList, Std.string(thread));
         }
     }
     

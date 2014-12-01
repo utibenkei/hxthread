@@ -556,7 +556,7 @@ class Thread extends Monitor
 		 */
     private function get_ClassName() : String
     {
-        var names : Array<Dynamic> = Type.getClassName(this).split(new EReg('::', ""));
+        var names : Array<Dynamic> = Type.getClassName(Type.getClass(this)).split('::');//とりあえず正規表現を使わない形で分割
         return names.length == (2) ? names[1] : names[0];
     }
     
