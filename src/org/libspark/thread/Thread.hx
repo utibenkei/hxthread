@@ -269,7 +269,7 @@ class Thread extends Monitor
 		 */
     private static function defaultUncaughtErrorHandler(e : Dynamic, t : Thread) : Void
     {
-        trace(((t != null) ? Std.string(t) + " " : "") + (Std.is(e, (Error != null) ? cast((e), Error).getStackTrace() : Std.string(e))));
+		trace(((t != null) ? Std.string(t) + " " : "") + ((Std.is(e, Error)) ? cast(e, Error).getStackTrace() : Std.string(e)));
     }
     
     /**
@@ -845,7 +845,7 @@ class Thread extends Monitor
         }  
         
 		// ハンドラマップから削除  
-		Reflect.deleteField(_errorHandlers, Type.getClassName(klass));
+		_errorHandlers.remove(Type.getClassName(klass));
     }
     
     /**
@@ -861,11 +861,10 @@ class Thread extends Monitor
         }  // 登録されているハンドラを巡回  
         
         
-        
-        for (key in Reflect.fields(_errorHandlers)){
+        for (key in _errorHandlers.keys()){
             // reset が true であればハンドラを削除する
-            if (cast((Reflect.field(_errorHandlers, key)), ErrorHandler).reset) {
-                Reflect.deleteField(_errorHandlers, key);
+            if (_errorHandlers[key].reset) {
+                _errorHandlers.remove(key);
             }
         }
     }
@@ -884,13 +883,13 @@ class Thread extends Monitor
             return null;
         }  // error のクラス名を取得  
         
-        
-        var className : String = Type.getClassName(error);
+		var className : String = Type.getClassName(Type.getClass(error));
+		
         
         // クラス名が取得できる限り回す
         while (className != null){
             // ハンドラマップからクラス名をキーにしてハンドラを検索する
-            var handler : ErrorHandler = Reflect.field(_errorHandlers, className);
+			var handler : ErrorHandler = _errorHandlers.get(className);
             // 見つかればそれを返す
             if (handler != null) {
                 return handler;
