@@ -299,7 +299,8 @@ class Thread extends Monitor
             
             if (thread._error != null && thread._errorThread != null) {
                 try{
-                    getUncaughtErrorHandler()(thread._error, thread._errorThread);
+                    //getUncaughtErrorHandler()(thread._error, thread._errorThread);
+					Reflect.callMethod(Thread, getUncaughtErrorHandler(), [thread._error, thread._errorThread]);
                 }                catch (e : Dynamic){
                     defaultUncaughtErrorHandler(e, null);
                 }
@@ -328,7 +329,9 @@ class Thread extends Monitor
 		 */
     private static function addToplevelThreads(threads : Array<Dynamic>) : Void
     {
-        _toplevelThreads.push.apply(_toplevelThreads, threads);
+        //_toplevelThreads.push.apply(_toplevelThreads, threads);
+		_toplevelThreads.push(threads);
+		//_toplevelThreads.concat(threads);//as3とは違い、pushで配列同士の連結はできない？ので普通にconcatで処理
     }
     
     /**
@@ -1175,17 +1178,17 @@ class Thread extends Monitor
                 // 実行関数を呼び出す
                 if (errorHandler != null) {
                     // エラーハンドラである場合は例外と例外の発生元のスレッドを引数として渡す
-                    runHandler.apply(this, [error, errorThread]);
+					Reflect.callMethod(this, runHandler, [error, errorThread]);
                 }
                 else if (_event != null) {
                     var ev : Event = _event;
                     _event = null;
                     // イベントハンドラである場合はイベントを渡す
-                    runHandler.apply(this, [ev]);
+					Reflect.callMethod(this, runHandler, [ev]);
                 }
                 else {
                     // それ以外の場合は引数なしで呼び出す
-                    runHandler.apply(this);
+					Reflect.callMethod(this, runHandler, []);
                 }
             }            catch (e : Dynamic){
                 // 例外が発生した場合例外を保存
@@ -1406,6 +1409,7 @@ class EventHandler
     
     private function handler(e : Event) : Void
     {
-        listener(e, this);
+        //listener(e, this);
+		Reflect.callMethod(this, listener, [e, this]);
     }
 }
