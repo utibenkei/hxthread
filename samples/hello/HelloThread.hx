@@ -20,7 +20,7 @@ class HelloThread extends Thread
         // まずは Hello, を出力します
         trace("Hello,");
         // next メソッドで、次に実行するメソッドを指定します
-        next(run2);
+        Thread.next(run2);
     }
     
     private function run2() : Void
@@ -28,7 +28,7 @@ class HelloThread extends Thread
         // 続いて Thread を出力します
         trace("Thread");
         // next メソッドで、次に実行するメソッドを指定します
-        next(run3);
+        Thread.next(run3);
     }
     
     private function run3() : Void

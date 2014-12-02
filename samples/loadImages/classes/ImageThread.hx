@@ -9,7 +9,6 @@
 package classes;
 
 
-import classes.*;
 import flash.display.Bitmap;
 import flash.display.DisplayObject;
 import flash.display.MovieClip;

@@ -14,8 +14,6 @@
 package classes;
 
 import classes.ImageThread;
-
-import classes.*;
 import flash.display.MovieClip;
 
 import org.libspark.thread.Thread;
@@ -30,9 +28,8 @@ class ImageBase extends MovieClip
 		 * @param
 		 * @return
 		 */
-    public function new()
+    public static function main()
     {
-        super();
         //レッドライブラリを初期化
         Thread.initialize(new EnterFrameThreadExecutor());
         

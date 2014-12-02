@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<info>
+    <image>
+        <array>
+            <number>1</number>
+            <path>image/</path>
+            <name>chinchilla.png</name>
+            <link></link>
+        </array>
+        <array>
+            <number>2</number>
+            <path>image/</path>
+            <name>donkey.png</name>
+            <link></link>
+        </array>
+        <array>
+            <number>3</number>
+            <path>image/</path>
+            <name>penguin.png</name>
+            <link></link>
+        </array>
+    </image>
+</info>
