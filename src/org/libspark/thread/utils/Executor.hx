@@ -56,7 +56,7 @@ class Executor extends Thread
     /**
 		 * 実行されるスレッドの数を返します.
 		 */
-    private function get_NumThreads() : Int
+    private function get_numThreads() : Int
     {
         return _threads.length;
     }

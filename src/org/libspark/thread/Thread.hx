@@ -191,7 +191,7 @@ class Thread extends Monitor
 		 * 
 		 * @see	#initialize()
 		 */
-    private static function get_IsReady() : Bool
+    private static function get_isReady() : Bool
     {
         return _executor != null;
     }
@@ -201,7 +201,7 @@ class Thread extends Monitor
 		 * 
 		 * <p>現在実行中のスレッドがない場合、 null を返します。</p>
 		 */
-    private static function get_CurrentThread() : Thread
+    private static function get_currentThread() : Thread
     {
         return _currentThread;
     }
@@ -234,7 +234,7 @@ class Thread extends Monitor
 		 * 
 		 * <p>ここに登録する関数は、第一引数に発生した例外である Object と、第二引数に発生元のスレッドである Thread を引数としてとる必要があります。</p>
 		 */
-    private static function get_UncaughtErrorHandler() : Function
+    private static function get_uncaughtErrorHandler() : Function
     {
         return _uncaughtErrorHandler;
     }
@@ -242,7 +242,7 @@ class Thread extends Monitor
     /**
 		 * @private
 		 */
-    private static function set_UncaughtErrorHandler(value : Function) : Function
+    private static function set_uncaughtErrorHandler(value : Function) : Function
     {
         _uncaughtErrorHandler = value;
         return value;
@@ -527,7 +527,7 @@ class Thread extends Monitor
 		 * 
 		 * <p>initialize メソッドが呼び出されない限り、ふたつのスレッドに同じ id が割り振られることはありません。</p>
 		 */
-    private function get_Id() : Int
+    private function get_id() : Int
     {
         return _id;
     }
@@ -535,7 +535,7 @@ class Thread extends Monitor
     /**
 		 * このスレッドの名前を設定します.
 		 */
-    private function get_Name() : String
+    private function get_name() : String
     {
         return _name;
     }
@@ -543,7 +543,7 @@ class Thread extends Monitor
     /**
 		 * @private
 		 */
-    private function set_Name(value : String) : String
+    private function set_name(value : String) : String
     {
         _name = value;
         return value;
@@ -554,7 +554,7 @@ class Thread extends Monitor
 		 * 
 		 * <p>デフォルトでは、 getQualifiedClassName メソッドを使用してクラス名を取得します。</p>
 		 */
-    private function get_ClassName() : String
+    private function get_className() : String
     {
         var names : Array<Dynamic> = Type.getClassName(Type.getClass(this)).split('::');//とりあえず正規表現を使わない形で分割
         return names.length == (2) ? names[1] : names[0];
@@ -567,7 +567,7 @@ class Thread extends Monitor
 		 * 
 		 * @see	ThreadState
 		 */
-    private function get_State() : Int
+    private function get_state() : Int
     {
         return _state;
     }
@@ -580,7 +580,7 @@ class Thread extends Monitor
 		 * 
 		 * @see	#interrupt()
 		 */
-    private function get_IsInterrupted() : Bool
+    private function get_isInterrupted() : Bool
     {
         return _isInterrupted;
     }

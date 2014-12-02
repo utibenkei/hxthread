@@ -89,7 +89,7 @@ class URLLoaderThread extends Thread implements IProgressNotifier
     /**
 		 * ロード対象となる URLRequest を返します.
 		 */
-    private function get_Request() : URLRequest
+    private function get_request() : URLRequest
     {
         return _request;
     }
@@ -100,7 +100,7 @@ class URLLoaderThread extends Thread implements IProgressNotifier
 		 * <p>ロード完了（スレッドの終了）後に、ロードしたデータ （URLLoader.data） を取得したい場合などに
 		 * このプロパティを使用します。</p>
 		 */
-    private function get_Loader() : URLLoader
+    private function get_loader() : URLLoader
     {
         return _loader;
     }
@@ -108,7 +108,7 @@ class URLLoaderThread extends Thread implements IProgressNotifier
     /**
 		 * @inheritDoc
 		 */
-    private function get_Progress() : IProgress
+    private function get_progress() : IProgress
     {
         return _progress;
     }

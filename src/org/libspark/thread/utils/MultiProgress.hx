@@ -112,7 +112,7 @@ class MultiProgress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_Total() : Float
+    private function get_total() : Float
     {
         var total : Float = 0;
         
@@ -126,7 +126,7 @@ class MultiProgress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_Current() : Float
+    private function get_current() : Float
     {
         var current : Float = 0;
         
@@ -140,7 +140,7 @@ class MultiProgress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_Percent() : Float
+    private function get_percent() : Float
     {
         var percent : Float = 0;
         var factor : Float = 0;
@@ -158,7 +158,7 @@ class MultiProgress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_IsStarted() : Bool
+    private function get_isStarted() : Bool
     {
         return _isProgressing;
     }
@@ -166,7 +166,7 @@ class MultiProgress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_IsCompleted() : Bool
+    private function get_isCompleted() : Bool
     {
         return _isCompleted;
     }
@@ -174,7 +174,7 @@ class MultiProgress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_IsFailed() : Bool
+    private function get_isFailed() : Bool
     {
         return _isFailed;
     }
@@ -182,7 +182,7 @@ class MultiProgress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_IsCanceled() : Bool
+    private function get_isCanceled() : Bool
     {
         return _isCanceled;
     }

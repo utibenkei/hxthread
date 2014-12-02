@@ -111,7 +111,7 @@ class Progress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_Total() : Float
+    private function get_total() : Float
     {
         return _total;
     }
@@ -119,7 +119,7 @@ class Progress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_Current() : Float
+    private function get_current() : Float
     {
         return _current;
     }
@@ -127,7 +127,7 @@ class Progress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_Percent() : Float
+    private function get_percent() : Float
     {
         return total != (0) ? current / total : 0;
     }
@@ -135,7 +135,7 @@ class Progress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_IsStarted() : Bool
+    private function get_isStarted() : Bool
     {
         return _isStarted;
     }
@@ -143,7 +143,7 @@ class Progress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_IsCompleted() : Bool
+    private function get_isCompleted() : Bool
     {
         return _isCompleted;
     }
@@ -151,7 +151,7 @@ class Progress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_IsFailed() : Bool
+    private function get_isFailed() : Bool
     {
         return _isFailed;
     }
@@ -159,7 +159,7 @@ class Progress extends EventDispatcher implements IProgress
     /**
 		 * @inheritDoc
 		 */
-    private function get_IsCanceled() : Bool
+    private function get_isCanceled() : Bool
     {
         return _isCanceled;
     }

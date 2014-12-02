@@ -60,7 +60,7 @@ class Frocessing2DThread extends Thread
     /**
 		 * 描画をするための F5Graphics2D
 		 */
-    private function get_Fg() : F5Graphics2D
+    private function get_fg() : F5Graphics2D
     {
         return _fg;
     }

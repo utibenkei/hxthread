@@ -82,7 +82,7 @@ class TweenerThread extends Thread
 		 * 
 		 * <p>まだトゥイーンが開始されていない場合は 0 を返します。</p>
 		 */
-    private function get_Time() : Int
+    private function get_time() : Int
     {
         return _startTime != (0) ? Math.round(haxe.Timer.stamp() * 1000) - _startTime : 0;
     }

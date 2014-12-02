@@ -89,7 +89,7 @@ class LoaderThread extends Thread implements IProgressNotifier
     /**
 		 * ロード対象となる URLRequest を返します.
 		 */
-    private function get_Request() : URLRequest
+    private function get_request() : URLRequest
     {
         return _request;
     }
@@ -97,7 +97,7 @@ class LoaderThread extends Thread implements IProgressNotifier
     /**
 		 * ロードに用いる LoaderContext を返します.
 		 */
-    private function get_Context() : LoaderContext
+    private function get_context() : LoaderContext
     {
         return _context;
     }
@@ -108,7 +108,7 @@ class LoaderThread extends Thread implements IProgressNotifier
 		 * <p>ロード完了 （スレッド終了） 後に、ロードしたファイル （Loader.content） を取得したい場合などに
 		 * このプロパティを使用します。</p>
 		 */
-    private function get_Loader() : Loader
+    private function get_loader() : Loader
     {
         return _loader;
     }
@@ -116,7 +116,7 @@ class LoaderThread extends Thread implements IProgressNotifier
     /**
 		 * @inheritDoc
 		 */
-    private function get_Progress() : IProgress
+    private function get_progress() : IProgress
     {
         return _progress;
     }

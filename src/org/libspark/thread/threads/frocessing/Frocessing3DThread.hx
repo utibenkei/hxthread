@@ -60,7 +60,7 @@ class Frocessing3DThread extends Thread
     /**
 		 * 描画をするための F5Graphics3D
 		 */
-    private function get_Fg() : F5Graphics3D
+    private function get_fg() : F5Graphics3D
     {
         return _fg;
     }

@@ -89,7 +89,7 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
     /**
 		 * ロード対象となる URLRequest を返します.
 		 */
-    private function get_Request() : URLRequest
+    private function get_request() : URLRequest
     {
         return _request;
     }
@@ -97,7 +97,7 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
     /**
 		 * ロードに用いる SoundLoaderContext を返します.
 		 */
-    private function get_Context() : SoundLoaderContext
+    private function get_context() : SoundLoaderContext
     {
         return _context;
     }
@@ -107,7 +107,7 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 		 * 
 		 * <p>ロード完了 （スレッド終了） 後に、ロードしたサウンドを取得したい場合などにこのプロパティを使用します。</p>
 		 */
-    private function get_Sound() : Sound
+    private function get_sound() : Sound
     {
         return _sound;
     }
@@ -115,7 +115,7 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
     /**
 		 * @inheritDoc
 		 */
-    private function get_Progress() : IProgress
+    private function get_progress() : IProgress
     {
         return _progress;
     }
