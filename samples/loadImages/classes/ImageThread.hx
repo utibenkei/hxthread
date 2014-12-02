@@ -12,6 +12,8 @@ package classes;
 import flash.display.Bitmap;
 import flash.display.DisplayObject;
 import flash.display.MovieClip;
+import flash.errors.SecurityError;
+import haxe.xml.Fast;
 
 import flash.display.DisplayObjectContainer;
 import flash.display.Loader;
@@ -27,7 +29,7 @@ import flash.net.URLRequest;
 import flash.net.URLLoader;
 
 import flash.errors.IOError;
-import flash.xml.*;
+//import flash.xml.*;
 
 class ImageThread extends Thread
 {
@@ -56,14 +58,15 @@ class ImageThread extends Thread
     }
     
     /**
-		 * XMLの取得
-		 *
-		 * @access protected
-		 * @param
-		 * @return void
-		 */
+	 * XMLの取得
+	 *
+	 * @access protected
+	 * @param
+	 * @return void
+	 */
     override private function run() : Void
     {
+		
         //URLLoaderThreadを作成
         _xmlLoader = new URLLoaderThread(new URLRequest(_xmlUrl));
         
@@ -76,23 +79,25 @@ class ImageThread extends Thread
         //ロード待ち
         _xmlLoader.join();
         
+		
         //次に実行されるメソッドの設定
-        next(executeCompleteXml);
+        Thread.next(executeCompleteXml);
         
         //例外ハンドラの設定
-        error(IOError, errorHandler);
-        error(SecurityError, errorHandler);
+        Thread.error(IOError, errorHandler);
+        Thread.error(SecurityError, errorHandler);
     }
     
     /**
-		 * XMLの取得完了
-		 *
-		 * @access private
-		 * @param
-		 * @return void
-		 */
+	 * XMLの取得完了
+	 *
+	 * @access private
+	 * @param
+	 * @return void
+	 */
     private function executeCompleteXml() : Void
     {
+		
         //debug
         trace("MainThread XML Complete Loading.");
         
@@ -100,19 +105,22 @@ class ImageThread extends Thread
         _imageLoaders = new ParallelExecutor();
         
         //XMLデータを取得し、スレッドに追加
-        var data : FastXML = new FastXML(_xmlLoader.loader.data);
-        for (i in 0...null){
-            var imageUrl : String = data.nodes.image.get(0).node.array.innerData[i].path + "" + data.nodes.image.get(0).node.array.innerData[i].name;
+		var xml:Xml = Xml.parse(_xmlLoader.loader.data);
+		var data : Fast = new Fast(xml.firstElement());
+		
+		var  i:Int = 0;
+		for (obj in data.node.image.nodes.array) {
+            var imageUrl : String = obj.node.path.innerData + "" + obj.node.name.innerData;
             _imageLoaders.addThread(new LoaderThread(new URLRequest(imageUrl)));
             _xmlData[i] = {
                         id : i,
                         url : imageUrl,
-
                     };
-        }  //debug  
-        
-        
-        
+			i++;
+        }
+		
+		
+		//debug  
         trace("MainThread Image Begin Loading.");
         
         // ロード処理を開始
@@ -122,27 +130,27 @@ class ImageThread extends Thread
         _imageLoaders.join();
         
         //次に実行されるメソッドの設定
-        next(executeCompleteImage);
+        Thread.next(executeCompleteImage);
         
         //例外ハンドラの設定
-        error(IOError, errorHandler);
-        error(SecurityError, errorHandler);
+        Thread.error(IOError, errorHandler);
+        Thread.error(SecurityError, errorHandler);
     }
     
     
     /**
-		 * 画像の取得
-		 *
-		 * @access private
-		 * @param
-		 * @return void
-		 */
+	 * 画像の取得
+	 *
+	 * @access private
+	 * @param
+	 * @return void
+	 */
     private function executeCompleteImage() : Void
     {
         //debug
         trace("MainThread Image Complete Loading.");
         
-        for (i in 0...null){
+        for (i in 0..._xmlData.length){
             var imageThread : LoaderThread = cast((_imageLoaders.getThreadAt(i)), LoaderThread);
             var content : DisplayObject = imageThread.loader.content;
             content.x = i * 300;
@@ -151,12 +159,12 @@ class ImageThread extends Thread
     }
     
     /**
-		 * スレッド終了処理
-		 *
-		 * @access protected
-		 * @param
-		 * @return void
-		 */
+	 * スレッド終了処理
+	 *
+	 * @access protected
+	 * @param
+	 * @return void
+	 */
     override private function finalize() : Void
     {
         _xmlLoader = null;
@@ -167,13 +175,13 @@ class ImageThread extends Thread
     }
     
     /**
-		 * 例外ハンドラ
-		 *
-		 * @access private
-		 * @param e 発生した例外
-		 * @param thread 発生元のスレッド
-		 * @return void
-		 */
+	 * 例外ハンドラ
+	 *
+	 * @access private
+	 * @param e 発生した例外
+	 * @param thread 発生元のスレッド
+	 * @return void
+	 */
     private function errorHandler(e : IOError, t : Thread) : Void
     {
         //debug
@@ -183,6 +191,6 @@ class ImageThread extends Thread
         trace(e.getStackTrace());
         
         //例外ハンドラから終了する
-        next(null);
+        Thread.next(null);
     }
 }

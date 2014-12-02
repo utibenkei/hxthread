@@ -27,7 +27,7 @@
  */
 package org.libspark.thread.threads.net;
 
-import nme.errors.SecurityError;
+import flash.errors.SecurityError;
 
 import flash.events.ProgressEvent;
 import org.libspark.thread.Thread;
@@ -134,7 +134,7 @@ class URLLoaderThread extends Thread implements IProgressNotifier
         events();
         
         // 割り込みハンドラを設定
-        interrupted(interruptedHandler);
+        Thread.interrupted(interruptedHandler);
         
         // ロード開始
         _loader.load(_request);
@@ -147,10 +147,10 @@ class URLLoaderThread extends Thread implements IProgressNotifier
 		 */
     private function events() : Void
     {
-        event(_loader, Event.COMPLETE, completeHandler);
-        event(_loader, ProgressEvent.PROGRESS, progressHandler);
-        event(_loader, IOErrorEvent.IO_ERROR, ioErrorHandler);
-        event(_loader, SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+        Thread.event(_loader, Event.COMPLETE, completeHandler);
+        Thread.event(_loader, ProgressEvent.PROGRESS, progressHandler);
+        Thread.event(_loader, IOErrorEvent.IO_ERROR, ioErrorHandler);
+        Thread.event(_loader, SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
     }
     
     /**
@@ -179,7 +179,7 @@ class URLLoaderThread extends Thread implements IProgressNotifier
         _progress.progress(e.bytesLoaded);
         
         // 割り込みハンドラを設定
-        interrupted(interruptedHandler);
+        Thread.interrupted(interruptedHandler);
         
         // 再びイベント待ち
         events();

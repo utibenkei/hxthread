@@ -46,7 +46,7 @@ import org.libspark.thread.ThreadState;
 class ParallelExecutor extends Executor
 {
     private var _index : Int;
-    private var _isInterrupted : Bool = false;
+    //private var _isInterrupted : Bool = false;//Redefinition of variable _isInterrupted in subclass is not allowed//!!!!!!!!!!
     
     /**
 		 * @private
@@ -54,7 +54,7 @@ class ParallelExecutor extends Executor
     override private function run() : Void
     {
         // 全てのスレッドを開始
-        for (thread in _threads){
+        for (thread in _threads) {
             if (thread.state == ThreadState.NEW) {
                 thread.start();
             }
@@ -86,9 +86,9 @@ class ParallelExecutor extends Executor
             if (thread.join()) {
                 // join の戻り値が true の場合、待機状態になったということなので
                 // 次にまたこのメソッドが実行されるよう設定してリターンする
-                next(waitThreads);
+                Thread.next(waitThreads);
                 // 割り込み処理
-                interrupted(interruptThreads);
+                Thread.interrupted(interruptThreads);
                 return;
             }
         }  // ここまで到達した場合全てのスレッドの実行が終了している  

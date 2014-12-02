@@ -32,7 +32,6 @@ import flash.errors.Error;
 import flash.errors.ReferenceError;
 import flash.events.Event;
 import flash.events.IEventDispatcher;
-//import flash.utils.Dictionary;
 import haxe.Constraints.Function;
 
 
@@ -149,7 +148,7 @@ class Thread extends Monitor
     private static var _executor : IThreadExecutor;
     private static var _threadIndex : Int = 0;
     private static var _currentThread : Thread = null;
-    private static var _toplevelThreads : Array<Dynamic> = [];
+    private static var _toplevelThreads : Array<Thread> = [];
     private static var _uncaughtErrorHandler : Function = null;
     
     /**
@@ -281,7 +280,7 @@ class Thread extends Monitor
     public static function executeAllThreads() : Void
     {
         // 全てのトップレベルスレッドを呼び出す
-        var threads : Array<Dynamic> = _toplevelThreads;
+        var threads : Array<Thread> = _toplevelThreads;
         var l : Int = threads.length;
         var i : Int = 0;
         while (i < l){
@@ -298,10 +297,10 @@ class Thread extends Monitor
             
             
             if (thread._error != null && thread._errorThread != null) {
-                try{
+                try {
                     //getUncaughtErrorHandler()(thread._error, thread._errorThread);
 					Reflect.callMethod(Thread, getUncaughtErrorHandler(), [thread._error, thread._errorThread]);
-                }                catch (e : Dynamic){
+                }                catch (e : Dynamic) {
                     defaultUncaughtErrorHandler(e, null);
                 }
                 thread._error = null;
@@ -327,11 +326,10 @@ class Thread extends Monitor
 		 * @param	threads	追加するスレッドの配列
 		 * @private
 		 */
-    private static function addToplevelThreads(threads : Array<Dynamic>) : Void
+    private static function addToplevelThreads(threads : Array<Thread>) : Void
     {
-        //_toplevelThreads.push.apply(_toplevelThreads, threads);
-		_toplevelThreads.push(threads);
-		//_toplevelThreads.concat(threads);//as3とは違い、pushで配列同士の連結はできない？ので普通にconcatで処理
+		//_toplevelThreads.push(threads);
+		_toplevelThreads.concat(threads);//as3とは違い、pushで配列同士の連結はできない？ので普通にconcatで処理
     }
     
     /**
@@ -509,7 +507,7 @@ class Thread extends Monitor
     private var _name : String;
     private var _state : Int;
     private var _runningState : Int;
-    private var _children : Array<Dynamic>;
+    private var _children : Array<Thread>;
     private var _runHandler : Function;
     private var _savedRunHandler : Function;
     private var _timeoutHandler : Function;
@@ -519,7 +517,7 @@ class Thread extends Monitor
     private var _sleepMonitor : IMonitor;
     private var _eventMonitor : IMonitor;
     private var _event : Event;
-    private var _errorHandlers : Map<String, ErrorHandler>;//private var _errorHandlers : Dictionary;
+    private var _errorHandlers : Map<String, ErrorHandler>;
     private var _error : Dynamic;
     private var _errorThread : Thread;
     private var _eventHandlers : Array<Dynamic>;
@@ -793,7 +791,7 @@ class Thread extends Monitor
 		 * @return	子スレッドの配列
 		 * @private
 		 */
-    private function getChildren() : Array<Dynamic>
+    private function getChildren() : Array<Thread>
     {
         return (_children != null) ? _children : (_children = []);
     }
@@ -815,9 +813,9 @@ class Thread extends Monitor
 		 * @return	エラーハンドラマップ
 		 * @private
 		 */
-    private function getErrorHandlers() : Map<String, ErrorHandler>//Dictionary
+    private function getErrorHandlers() : Map<String, ErrorHandler>
     {
-        return (_errorHandlers != null) ? _errorHandlers : (_errorHandlers = new Map());//new Dictionary()
+        return (_errorHandlers != null) ? _errorHandlers : (_errorHandlers = new Map());
     }
     
     /**
@@ -885,7 +883,6 @@ class Thread extends Monitor
         if (_errorHandlers == null) {
             return null;
         }  // error のクラス名を取得  
-        
         
         
         var className : String = Type.getClassName(error);
@@ -1048,7 +1045,7 @@ class Thread extends Monitor
         var errorThread : Thread = (_errorThread != null) ? _errorThread : this;
         
         // すべての子スレッドを呼び出す
-        var children : Array<Dynamic> = _children;
+        var children : Array<Thread> = _children;
         if (children != null) {
             var cl : Int = children.length;
             var ci : Int = 0;

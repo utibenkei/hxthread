@@ -13,28 +13,52 @@
  */
 package classes;
 
-import classes.ImageThread;
 import flash.display.MovieClip;
+import flash.events.Event;
+import flash.Lib;
 
 import org.libspark.thread.Thread;
 import org.libspark.thread.EnterFrameThreadExecutor;
 
 class ImageBase extends MovieClip
 {
-    /**
-		 * コンストラクタ
-		 *
-		 * @access public
-		 * @param
-		 * @return
-		 */
-    public static function main()
-    {
+	
+	private function init() 
+	{
         //レッドライブラリを初期化
         Thread.initialize(new EnterFrameThreadExecutor());
         
         //MainThread起動
         var main : ImageThread = new ImageThread(this);
         main.start();
-    }
+	}
+	
+	public function new() 
+	{
+		super();	
+		addEventListener(Event.ADDED_TO_STAGE, added);
+	}
+
+	function added(e) 
+	{
+		removeEventListener(Event.ADDED_TO_STAGE, added);
+		init();
+	}
+	
+    /**
+	 * コンストラクタ
+	 *
+	 * @access public
+	 * @param
+	 * @return
+	 */
+	public static function main() 
+	{
+		// static entry point
+		Lib.current.stage.align = flash.display.StageAlign.TOP_LEFT;
+		Lib.current.stage.scaleMode = flash.display.StageScaleMode.NO_SCALE;
+		Lib.current.addChild(new ImageBase());
+	}
+	
+	
 }

@@ -77,7 +77,7 @@ class LoaderThread extends Thread implements IProgressNotifier
         super();
         _request = request;
         _context = context;
-        _loader = loader != (null) ? loader : new Loader();
+        _loader = (loader != null) ? loader : new Loader();
         _progress = new Progress();
     }
     
@@ -132,7 +132,7 @@ class LoaderThread extends Thread implements IProgressNotifier
         events();
         
         // 割り込みハンドラを設定
-        interrupted(interruptedHandler);
+        Thread.interrupted(interruptedHandler);
         
         // ロード開始
         _loader.load(_request, _context);
@@ -145,9 +145,9 @@ class LoaderThread extends Thread implements IProgressNotifier
 		 */
     private function events() : Void
     {
-        event(_loader.contentLoaderInfo, Event.COMPLETE, completeHandler);
-        event(_loader.contentLoaderInfo, ProgressEvent.PROGRESS, progressHandler);
-        event(_loader.contentLoaderInfo, IOErrorEvent.IO_ERROR, ioErrorHandler);
+        Thread.event(_loader.contentLoaderInfo, Event.COMPLETE, completeHandler);
+        Thread.event(_loader.contentLoaderInfo, ProgressEvent.PROGRESS, progressHandler);
+        Thread.event(_loader.contentLoaderInfo, IOErrorEvent.IO_ERROR, ioErrorHandler);
     }
     
     /**
@@ -176,7 +176,7 @@ class LoaderThread extends Thread implements IProgressNotifier
         _progress.progress(e.bytesLoaded);
         
         // 割り込みハンドラを設定
-        interrupted(interruptedHandler);
+        Thread.interrupted(interruptedHandler);
         
         // 再びイベント待ち
         events();

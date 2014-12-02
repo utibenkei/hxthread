@@ -51,7 +51,7 @@ class Executor extends Thread
     /**
 		 * @private
 		 */
-    private var _threads : Array<Dynamic>;
+    private var _threads : Array<Thread>;
     
     /**
 		 * 実行されるスレッドの数を返します.
