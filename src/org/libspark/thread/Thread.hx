@@ -1017,10 +1017,9 @@ class Thread extends Monitor
             // そしてすぐ実行してみる
             internalExecute(null, this);
         };
-        finally;{
-            // カレントスレッドを復元
-            _currentThread = current;
-        }
+		
+        // カレントスレッドを復元
+        _currentThread = current;
     }
     
     /**
@@ -1207,10 +1206,10 @@ class Thread extends Monitor
                     _runHandler = null;
                 }
             }
-            finally;{
-                // カレントスレッドを元に戻す
-                _currentThread = null;
-            }
+			
+            // カレントスレッドを元に戻す
+            _currentThread = null;
+			
         }  // 今エラーハンドラを実行し、かつエラーが発生していない場合、保存しておいた実行関数はもう必要ないので破棄  
         
         
@@ -1235,10 +1234,9 @@ class Thread extends Monitor
                         try{
                             _currentThread = this;
                             getEventMonitor().wait();
-                        };
-                        finally;{
-                            _currentThread = null;
                         }
+                        _currentThread = null;
+						
                     }
                 }
             }
