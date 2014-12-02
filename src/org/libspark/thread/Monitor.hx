@@ -29,7 +29,6 @@ package org.libspark.thread;
 
 import org.libspark.thread.Thread;
 
-//import flash.utils.Dictionary;
 //import flash.utils.SetTimeout;
 //import flash.utils.ClearTimeout;
 
@@ -48,8 +47,8 @@ class Monitor implements IMonitor
         
     }
     
-    private var _waitors : Array<Dynamic>;
-    private var _timeoutList : Map<String, Int>;//Dictionary;
+    private var _waitors : Array<Thread>;
+    private var _timeoutList : Map<Thread, Int>;
     
     /**
 		 * ウェイトセットを返します.
@@ -57,7 +56,7 @@ class Monitor implements IMonitor
 		 * @return	ウェイトセット
 		 * @private
 		 */
-    private function getWaitors() : Array<Dynamic>
+    private function getWaitors() : Array<Thread>
     {
         return (_waitors != null) ? _waitors : (_waitors = []);
     }
@@ -74,12 +73,11 @@ class Monitor implements IMonitor
         // マップがなければ生成
         if (_timeoutList == null) {
             _timeoutList = new Map();//new Dictionary();
-        }  // タイムアウトを設定して、thread をキーにして タイムアウトID を保存  
-        
-        
-        
-        //Reflect.setField(_timeoutList, Std.string(thread), setTimeout(timeoutHandler, timeout, thread));
-		Reflect.setField(_timeoutList, Std.string(thread), untyped __global__["flash.utils.setTimeout"](timeoutHandler, timeout, thread));
+        }
+		
+		// タイムアウトを設定して、thread をキーにして タイムアウトID を保存  
+        //_timeoutList[thread] = setTimeout(timeoutHandler, timeout, thread);//AS3 code.
+		_timeoutList[thread] = untyped __global__["flash.utils.setTimeout"](timeoutHandler, timeout, thread);
     }
     
     /**
@@ -93,17 +91,19 @@ class Monitor implements IMonitor
         // マップがなければ何もしない
         if (_timeoutList == null) {
             return;
-        }  // thread をキーにして タイムアウトID を検索  
+        } 
         
         
-        
-        var id : Dynamic = Reflect.field(_timeoutList, Std.string(thread));
+        // thread をキーにして タイムアウトID を検索 
+		var id : Dynamic = _timeoutList[thread];
         
         // 見つかったらタイムアウトを解除する
         if (id != null) {
-            //clearTimeout(Int(id));
-			untyped __global__["flash.utils.clearTimeout"](Int(id));
-			Reflect.deleteField(_timeoutList, Std.string(thread));
+            //clearTimeout(Int(id));//AS3 code.
+			untyped __global__["flash.utils.clearTimeout"](Std.int(id));
+			//delete _timeoutList[thread];//as3 code.
+			_timeoutList.remove(thread);
+			
         }
     }
     
@@ -139,7 +139,7 @@ class Monitor implements IMonitor
         
         
         
-        var thread : Thread = cast((_waitors.shift()), Thread);
+        var thread : Thread = _waitors.shift();
         
         // タイムアウトを解除
         unregisterTimeout(thread);
