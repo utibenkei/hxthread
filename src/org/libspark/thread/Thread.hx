@@ -557,8 +557,7 @@ class Thread extends Monitor
 		 */
     private function get_className() : String
     {
-        var names : Array<Dynamic> = Type.getClassName(Type.getClass(this)).split('::');//とりあえず正規表現を使わない形で分割
-        return names.length == (2) ? names[1] : names[0];
+		return Type.getClassName(Type.getClass(this)).split('.').pop();//haxeではパッケージが"."で区切られている。
     }
     
     /**
