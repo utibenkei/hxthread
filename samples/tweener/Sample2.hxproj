@@ -4,10 +4,10 @@
   <output>
     <movie outputType="Application" />
     <movie input="" />
-    <movie path="SampleWithProgress.swf" />
+    <movie path="Sample2.swf" />
     <movie fps="30" />
-    <movie width="400" />
-    <movie height="400" />
+    <movie width="500" />
+    <movie height="500" />
     <movie version="11" />
     <movie minorVersion="8" />
     <movie platform="Flash Player" />
@@ -24,9 +24,9 @@
     <option directives="" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
-    <option mainClass="SampleWithProgress" />
+    <option mainClass="Sample2" />
     <option enabledebug="True" />
-    <option additional="" />
+    <option additional="-swf-lib ../../libs/tweener.swc" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>
@@ -35,7 +35,7 @@
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
     <compile path="samples\hello\Sample.hx" />
-    <compile path="SampleWithProgress.hx" />
+    <compile path="Sample2.hx" />
   </compileTargets>
   <!-- Assets to embed into the output SWF -->
   <library>

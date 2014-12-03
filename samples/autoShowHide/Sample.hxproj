@@ -6,8 +6,8 @@
     <movie input="" />
     <movie path="Sample.swf" />
     <movie fps="30" />
-    <movie width="800" />
-    <movie height="600" />
+    <movie width="300" />
+    <movie height="300" />
     <movie version="11" />
     <movie minorVersion="8" />
     <movie platform="Flash Player" />
@@ -26,7 +26,7 @@
     <option noInlineOnDebug="False" />
     <option mainClass="Sample" />
     <option enabledebug="True" />
-    <option additional="-swf-lib ../lib/tweener.swc" />
+    <option additional="-swf-lib ../../libs/tweener.swc" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>

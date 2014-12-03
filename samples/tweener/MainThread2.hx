@@ -9,7 +9,7 @@ import org.libspark.thread.threads.tweener.TweenerThread;
 /**
  * このスレッドは、TweenerThread を用いて、シェイプをアニメーションさせます
  */
-class MainThread extends Thread
+class MainThread2 extends Thread
 {
 	public function new(layer:DisplayObjectContainer)
 	{
@@ -35,82 +35,39 @@ class MainThread extends Thread
 		_shape = _layer.addChild(shape);
 		
 		// アニメーションさせる
-		moveRight();
+		move();
 	}
 	
 	/**
-	 * 右にアニメーション
+	 * 出たり消えたりしながらランダムに動く
 	 */
-	private function moveRight():Void
+	private function move():Void
 	{
 		// TweenerThread を作成
 		var tween:Thread = new TweenerThread(_shape, {
-			x:460,
-			y:10,
-			time:1.0
+			x: Math.random() * 450,
+			y: Math.random() * 450,
+			time: 1.0,
+			show: true, // 特殊プロパティshow: true にするとトゥイーン開始時に visible が true になる
+			hide: true  // 特殊プロパティhide: true にするとトゥイーン終了時に visible が false　になる
 		});
+			
 		// 開始
 		tween.start();
 		// 終了を待つ
 		tween.join();
-		// 次は下へ
-		Thread.next(moveDown);
+		// 次
+		Thread.next(afterMove);
 	}
 	
 	/**
-	 * 下にアニメーション
+	 * 動いた後
 	 */
-	private function moveDown():Void
+	private function afterMove():Void
 	{
-		// TweenerThread を作成
-		var tween:Thread = new TweenerThread(_shape, {
-			x:460,
-			y:460,
-			time:1.0
-		});
-		// 開始
-		tween.start();
-		// 終了を待つ
-		tween.join();
-		// 次は左へ
-		Thread.next(moveLeft);
-	}
-	
-	/**
-	 * 左にアニメーション
-	 */
-	private function moveLeft():Void
-	{
-		// TweenerThread を作成
-		var tween:Thread = new TweenerThread(_shape, {
-			x:10,
-			y:460,
-			time:1.0
-		});
-		// 開始
-		tween.start();
-		// 終了を待つ
-		tween.join();
-		// 次は上へ
-		Thread.next(moveUp);
-	}
-	
-	/**
-	 * 上にアニメーション
-	 */
-	private function moveUp():Void
-	{
-		// TweenerThread を作成
-		var tween:Thread = new TweenerThread(_shape, {
-			x:10,
-			y:10,
-			time:1.0
-		});
-		// 開始
-		tween.start();
-		// 終了を待つ
-		tween.join();
-		// 次は右へ
-		Thread.next(moveRight);
+		// 1秒待って
+		Thread.sleep(1 * 1000);
+		// また動く
+		Thread.next(move);
 	}
 }
