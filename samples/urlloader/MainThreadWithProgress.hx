@@ -1,15 +1,13 @@
-import ProgressTraceThread;
+package;
 
-import flash.events.Event;
-import org.libspark.thread.Thread;
-import org.libspark.thread.utils.Executor;
-import org.libspark.thread.utils.ParallelExecutor;
-import org.libspark.thread.threads.net.URLLoaderThread;
-
-import flash.net.URLRequest;
-import flash.net.URLLoader;
 
 import flash.errors.IOError;
+import flash.errors.SecurityError;
+import flash.net.URLRequest;
+import org.libspark.thread.Thread;
+import org.libspark.thread.threads.net.URLLoaderThread;
+import ProgressTraceThread;
+
 
 /**
  * このスレッドは、URLLoaderThread を用いてデータをダウンロードします。
@@ -25,7 +23,7 @@ class MainThreadWithProgress extends Thread
 	override private function run():Void
 	{
 		// データを読み込むための URLLoaderThread を作成します
-		_loader = new URLLoaderThread(new URLRequest("http://as-users.jp/index.html"));
+		_loader = new URLLoaderThread(new URLRequest("http://www.adobe.com/jp/"));
 		
 		// 進捗を表示するための ProgressTraceThread を作成します
 		var tracer:Thread = new ProgressTraceThread(_loader.progress);
@@ -41,10 +39,10 @@ class MainThreadWithProgress extends Thread
 		tracer.start();
 		
 		// 次に実行されるメソッドをセットしておきます
-		next(executeComplete);
+		Thread.next(executeComplete);
 		// 例外ハンドラを設定しておきます
-		error(IOError, errorHandler);
-		error(SecurityError, errorHandler);
+		Thread.error(IOError, errorHandler);
+		Thread.error(SecurityError, errorHandler);
 	}
 	
 	/**
@@ -81,7 +79,7 @@ class MainThreadWithProgress extends Thread
 		// 例外を出力して終了
 		trace(e.getStackTrace());
 		// 例外ハンドラから終了するには、明示的に next(null) を呼び出します
-		next(null);
+		Thread.next(null);
 	}
 
 	public function new()

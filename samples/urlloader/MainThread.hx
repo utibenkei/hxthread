@@ -1,14 +1,15 @@
+package;
 
-import flash.events.Event;
-import org.libspark.thread.Thread;
-import org.libspark.thread.utils.Executor;
-import org.libspark.thread.utils.ParallelExecutor;
-import org.libspark.thread.threads.net.URLLoaderThread;
-
-import flash.net.URLRequest;
-import flash.net.URLLoader;
 
 import flash.errors.IOError;
+import flash.errors.SecurityError;
+import flash.net.URLLoader;
+import flash.net.URLRequest;
+import org.libspark.thread.Thread;
+import org.libspark.thread.threads.net.URLLoaderThread;
+import org.libspark.thread.utils.Executor;
+import org.libspark.thread.utils.ParallelExecutor;
+
 
 /**
  * このスレッドは、URLLoaderThread と ParallelExecutor を用いて、平行して三つの URL からデータをダウンロードします
@@ -38,10 +39,10 @@ class MainThread extends Thread
 		_loaders.join();
 		
 		// 次に実行されるメソッドをセットしておきます
-		next(executeComplete);
+		Thread.next(executeComplete);
 		// 例外ハンドラを設定しておきます
-		error(IOError, errorHandler);
-		error(SecurityError, errorHandler);
+		Thread.error(IOError, errorHandler);
+		Thread.error(SecurityError, errorHandler);
 	}
 	
 	/**
@@ -82,7 +83,7 @@ class MainThread extends Thread
 		// 例外を出力して終了
 		trace(e.getStackTrace());
 		// 例外ハンドラから終了するには、明示的に next(null) を呼び出します
-		next(null);
+		Thread.next(null);
 	}
 
 	public function new()

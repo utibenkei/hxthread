@@ -1,3 +1,5 @@
+package;
+
 
 import flash.events.Event;
 import org.libspark.thread.Thread;
@@ -23,7 +25,7 @@ class ProgressTraceThread extends Thread
 	override private function run():Void
 	{
 		// 開始を待ちます
-		event(_progress, ProgressEvent.START, startHandler);
+		Thread.event(_progress, ProgressEvent.START, startHandler);
 	}
 	
 	private function startHandler(e:Event):Void
@@ -32,10 +34,10 @@ class ProgressTraceThread extends Thread
 		trace("[Progress] Start...");
 		
 		// いずれかのイベントを待ちます
-		event(_progress, ProgressEvent.UPDATE, updateHandler);
-		event(_progress, ProgressEvent.COMPLETED, completeHandler);
-		event(_progress, ProgressEvent.FAILED, failedHandler);
-		event(_progress, ProgressEvent.CANCELED, canceledHandler);
+		Thread.event(_progress, ProgressEvent.UPDATE, updateHandler);
+		Thread.event(_progress, ProgressEvent.COMPLETED, completeHandler);
+		Thread.event(_progress, ProgressEvent.FAILED, failedHandler);
+		Thread.event(_progress, ProgressEvent.CANCELED, canceledHandler);
 	}
 	
 	private function updateHandler(e:Event):Void
@@ -44,10 +46,10 @@ class ProgressTraceThread extends Thread
 		trace("[Progress] " + (_progress.percent * 100) + "%");
 		
 		// いずれかのイベントを待ちます
-		event(_progress, ProgressEvent.UPDATE, updateHandler);
-		event(_progress, ProgressEvent.COMPLETED, completeHandler);
-		event(_progress, ProgressEvent.FAILED, failedHandler);
-		event(_progress, ProgressEvent.CANCELED, canceledHandler);
+		Thread.event(_progress, ProgressEvent.UPDATE, updateHandler);
+		Thread.event(_progress, ProgressEvent.COMPLETED, completeHandler);
+		Thread.event(_progress, ProgressEvent.FAILED, failedHandler);
+		Thread.event(_progress, ProgressEvent.CANCELED, canceledHandler);
 	}
 	
 	private function completeHandler(e:Event):Void
