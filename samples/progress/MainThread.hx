@@ -1,11 +1,14 @@
-import ProgressBarThread;
-import WorkerThread;
+package;
+
 
 import flash.display.Sprite;
 import org.libspark.thread.Thread;
+import org.libspark.thread.utils.IProgressNotifier;
 import org.libspark.thread.utils.MultiProgress;
 import org.libspark.thread.utils.SerialExecutor;
-import org.libspark.thread.utils.IProgressNotifier;
+import ProgressBarThread;
+import WorkerThread;
+
 
 /**
  * このスレッドは、複数の WorkerThread を実行すると共に、 ProgressBarThread を用いてその進捗状況をプログレスバーとして表示します。
@@ -56,7 +59,7 @@ class MainThread extends Thread
 		new ProgressBarThread(progress, _layer.graphics, _layer.stage.stageWidth).start();
 		
 		// 次に実行するメソッドを設定します
-		next(complete);
+		Thread.next(complete);
 	}
 	
 	private function complete():Void

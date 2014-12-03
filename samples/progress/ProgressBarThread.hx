@@ -1,3 +1,5 @@
+package;
+
 
 import flash.display.Graphics;
 import org.libspark.thread.Thread;
@@ -52,10 +54,10 @@ class ProgressBarThread extends Thread
 			if (_displayWidth == w) {
 				return;
 			}
-		}  // 次もまたこのメソッドを実行します	
+		}
 		
 		
-		
-		next(run);
+		// 次もまたこのメソッドを実行します
+		Thread.next(run);
 	}
 }

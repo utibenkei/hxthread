@@ -1,3 +1,5 @@
+package;
+
 
 import org.libspark.thread.Thread;
 import org.libspark.thread.utils.IProgress;
@@ -36,7 +38,7 @@ class WorkerThread extends Thread implements IProgressNotifier
 	 * このプロパティは IProgressNotifier インターフェイスによって定義されます。
 	 * 進捗状況を通知可能にするために、 IProgress インターフェイスのインスタンスを返します。
 	 */
-	private function get_Progress():IProgress
+	private function get_progress():IProgress
 	{
 		return _progress;
 	}
@@ -54,13 +56,13 @@ class WorkerThread extends Thread implements IProgressNotifier
 		trace(name + " Start (task=" + _task + ")");
 		
 		// 次は実際に仕事をします
-		next(work);
+		Thread.next(work);
 	}
 	
 	private function work():Void
 	{
 		// 仕事をします
-		++_worked;
+		_worked++;
 		
 		// 仕事が進行したことを通知します
 		_progress.progress(_worked);
@@ -76,13 +78,13 @@ class WorkerThread extends Thread implements IProgressNotifier
 			trace(name + " Complete");
 			// スレッドを終了します
 			return;
-		}  // 500ms 休みます (時間のかかる処理をシミュレートするためです)  
+		}
 		
 		
-		
-		sleep(500);
+		// 500ms 休みます (時間のかかる処理をシミュレートするためです)
+		Thread.sleep(500);
 		
 		// そしてまた仕事をします
-		next(work);
+		Thread.next(work);
 	}
 }
