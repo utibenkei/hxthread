@@ -79,7 +79,7 @@ class SerialExecutor extends Executor
 			return;
 		} 
 		// もしくは割り込まれた場合は終了する 
-		if (checkInterrupted()) {
+		if (Thread.checkInterrupted()) {
 			return;
 		}
 		
@@ -98,10 +98,10 @@ class SerialExecutor extends Executor
 		thread.join();
 		
 		// 割り込まれた場合
-		interrupted(runInterrupted);
+		Thread.interrupted(runInterrupted);
 		
 		// スレッドが終了した際に再びこのメソッドが実行されるよう設定
-		next(runThread);
+		Thread.next(runThread);
 	}
 	
 	/**

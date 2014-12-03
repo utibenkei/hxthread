@@ -90,7 +90,6 @@ import org.libspark.thread.utils.events.ProgressEvent;
  * @see	#addProgress()
  */
 
-import org.libspark.thread.utils.IProgress;
 
 class MultiProgress extends EventDispatcher implements IProgress
 {
