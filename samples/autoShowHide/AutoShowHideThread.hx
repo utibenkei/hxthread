@@ -1,3 +1,5 @@
+package;
+
 
 import flash.display.InteractiveObject;
 import flash.events.MouseEvent;
@@ -33,8 +35,8 @@ class AutoShowHideThread extends Thread
 		_tween = null;
 		
 		// ロールオーバーするか、(ターゲットの上で)マウスが動いたらフェードインに移行します
-		event(_target, MouseEvent.ROLL_OVER, fadeIn);
-		event(_target, MouseEvent.MOUSE_MOVE, fadeIn);
+		Thread.event(_target, MouseEvent.ROLL_OVER, fadeIn);
+		Thread.event(_target, MouseEvent.MOUSE_MOVE, fadeIn);
 	}
 	
 	private function fadeIn(e:MouseEvent = null):Void
@@ -48,24 +50,20 @@ class AutoShowHideThread extends Thread
 			_tween.cancel();
 			// 時間を調整します
 			t = _tween.time / 1000;
-		}  // アルファが 1.0 になるようなトゥイーンを作成します	 
+		}
 		
 		
-		
-		_tween = new TweenerThread(_target, {
-					alpha:1.0,
-					time:t,
-
-				});
+		// アルファが 1.0 になるようなトゥイーンを作成します
+		_tween = new TweenerThread(_target, { alpha:1.0, time:t});
 		// トゥイーンを開始します
 		_tween.start();
 		// トゥイーンが終わるのを待ちます
 		_tween.join();
 		
 		// トゥイーン中にロールアウトしたらフェードアウトに移行します
-		event(_target, MouseEvent.ROLL_OUT, fadeOut);
+		Thread.event(_target, MouseEvent.ROLL_OUT, fadeOut);
 		// ロールアウトせずにトゥイーンが終了した場合ロールアウト待ちに移行します
-		next(waitRollout);
+		Thread.next(waitRollout);
 	}
 	
 	private function waitRollout(e:MouseEvent = null):Void
@@ -73,15 +71,15 @@ class AutoShowHideThread extends Thread
 		_tween = null;
 		
 		// ロールアウトしたらフェードアウトに移行します
-		event(_target, MouseEvent.ROLL_OUT, fadeOut);
+		Thread.event(_target, MouseEvent.ROLL_OUT, fadeOut);
 		
 		// 2 秒待って何も起きなかった場合
-		sleep(2000);
+		Thread.sleep(2000);
 		// 自動的にフェードアウトに移行します
-		next(fadeOut);
+		Thread.next(fadeOut);
 		
 		// ただし、マウスが動いている場合はフェードアウトしないように再びこのメソッドを実行するようにします
-		event(_target, MouseEvent.MOUSE_MOVE, waitRollout);
+		Thread.event(_target, MouseEvent.MOUSE_MOVE, waitRollout);
 	}
 	
 	private function fadeOut(e:MouseEvent = null):Void
@@ -95,25 +93,21 @@ class AutoShowHideThread extends Thread
 			_tween.cancel();
 			// 時間を調整します
 			t = _tween.time / 1000;
-		}  // アルファが 0 になるようなトゥイーンを作成します  
+		} 
 		
 		
-		
-		_tween = new TweenerThread(_target, {
-					alpha:0,
-					time:t,
-
-				});
+		// アルファが 0 になるようなトゥイーンを作成します
+		_tween = new TweenerThread(_target, {alpha:0, time:t});
 		// トゥイーンを開始します
 		_tween.start();
 		// トゥイーンが終わるのを待ちます
 		_tween.join();
 		
 		// トゥイーン中にロールオーバーしたり
-		event(_target, MouseEvent.ROLL_OVER, fadeIn);
+		Thread.event(_target, MouseEvent.ROLL_OVER, fadeIn);
 		// マウスが動いたりした場合はフェードインに移行します
-		event(_target, MouseEvent.MOUSE_MOVE, fadeIn);
+		Thread.event(_target, MouseEvent.MOUSE_MOVE, fadeIn);
 		// 何事もなくトゥイーンが終了した場合、ロールオーバー待ちに移行します
-		next(waitRollover);
+		Thread.next(waitRollover);
 	}
 }

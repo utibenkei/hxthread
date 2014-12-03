@@ -101,7 +101,7 @@ class TweenerThread extends Thread
 	 */
 	private function splitSpecialArgs(args:Dynamic):Dynamic
 	{
-		var result:Dynamic = new Dynamic();
+		var result:Dynamic = { };
 		
 		moveSpecialArg("show", args, result);
 		moveSpecialArg("hide", args, result);
@@ -114,7 +114,7 @@ class TweenerThread extends Thread
 	 */
 	private function moveSpecialArg(name:String, from:Dynamic, to:Dynamic):Void
 	{
-		if (Lambda.has(from, name)) {
+		if (Reflect.hasField(from, name)) {
 			Reflect.setField(to, name, Reflect.field(from, name));
 			Reflect.deleteField(from, name);
 		}
@@ -125,12 +125,12 @@ class TweenerThread extends Thread
 	 */
 	override private function run():Void
 	{
-		if (Lambda.has(_specialArgs, "show") && _specialArgs.show) {
+		if (Reflect.hasField(_specialArgs, "show") && _specialArgs.show) {
 			if (Std.is(_target, DisplayObject)) {
 				cast((_target), DisplayObject).visible = true;
 			}
 			else {
-				if (Lambda.has(_target, "visible")) {
+				if (Reflect.hasField(_target, "visible")) {
 					_target.visible = true;
 				}
 			}
@@ -149,7 +149,7 @@ class TweenerThread extends Thread
 	private function waitTween():Void
 	{
 		_monitor.wait();
-		interrupted(interruptedHandler);
+		Thread.interrupted(interruptedHandler);
 	}
 	
 	/**
@@ -157,12 +157,12 @@ class TweenerThread extends Thread
 	 */
 	private function completeHandler():Void
 	{
-		if (Lambda.has(_specialArgs, "hide") && _specialArgs.hide) {
+		if (Reflect.hasField(_specialArgs, "hide") && _specialArgs.hide) {
 			if (Std.is(_target, DisplayObject)) {
 				cast((_target), DisplayObject).visible = false;
 			}
 			else {
-				if (Lambda.has(_target, "visible")) {
+				if (Reflect.hasField(_target, "visible")) {
 					_target.visible = false;
 				}
 			}
