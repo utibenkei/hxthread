@@ -1,10 +1,9 @@
 /*
- * ActionScript Thread Library
+ * Haxe port of ActionScript Thread Library
  * 
  * Licensed under the MIT License
  * 
- * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ * Copyright (c) 2014 utibenkei
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,28 +28,28 @@ package org.libspark.thread;
 
 
 /**
-	 * IThreadExecutor インターフェイスはスレッドの実行タイミングを制御する役割を持ちます.
-	 * 
-	 * <p>IThreadExecutor インターフェイスの実装クラスは、 Thread#executeAllThreads メソッドを呼び出して、
-	 * スレッドを実行する必要があります。この動作は、何らかの条件に基づいて、 start メソッドが呼び出されてから、
-	 * stop メソッドが呼び出されるまで、断続的に行う必要があります。</p>
-	 * 
-	 * @author	yossy:beinteractive
-	 * @see	Thread#executeAllThreads()
-	 */
+ * IThreadExecutor インターフェイスはスレッドの実行タイミングを制御する役割を持ちます.
+ * 
+ * <p>IThreadExecutor インターフェイスの実装クラスは、 Thread#executeAllThreads メソッドを呼び出して、
+ * スレッドを実行する必要があります。この動作は、何らかの条件に基づいて、 start メソッドが呼び出されてから、
+ * stop メソッドが呼び出されるまで、断続的に行う必要があります。</p>
+ * 
+ * @author	utibenkei
+ * @see	Thread#executeAllThreads()
+ */
 interface IThreadExecutor
 {
 
-    /**
-		 * IThreadExecutor の実行を開始します.
-		 * 
-		 * <p>このメソッドが呼び出された後は、何らかの条件に基づいて、 stop メソッドが呼び出されるまで、
-		 * Thread#executeAllThreads メソッドを断続的に呼び出すことが求められます。</p>
-		 */
-    function start() : Void;
-    
-    /**
-		 * IThreadExecutor の実行を終了します.
-		 */
-    function stop() : Void;
+	/**
+	 * IThreadExecutor の実行を開始します.
+	 * 
+	 * <p>このメソッドが呼び出された後は、何らかの条件に基づいて、 stop メソッドが呼び出されるまで、
+	 * Thread#executeAllThreads メソッドを断続的に呼び出すことが求められます。</p>
+	 */
+	function start():Void;
+	
+	/**
+	 * IThreadExecutor の実行を終了します.
+	 */
+	function stop():Void;
 }

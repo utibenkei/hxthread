@@ -4,7 +4,7 @@
  * Licensed under the MIT License
  * 
  * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ *					  Spark project	 (www.libspark.org)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,35 +32,35 @@ import org.libspark.flickrsphere.Context;
 import org.libspark.thread.Thread;
 
 /**
-	 * PapervisionControlThread クラスは、3D 関係の基本的な制御を行います.
-	 */
+ * PapervisionControlThread クラスは、3D 関係の基本的な制御を行います.
+ */
 class PapervisionControlThread extends Thread
 {
-    public function new(context : Context)
-    {
-        super();
-        _context = context;
-    }
-    
-    private var _context : Context;
-    
-    override private function run() : Void
-    {
-        // 最初のレンダリングがおかしいので 1 回多くレンダリングする
-        _context.renderer.renderScene(_context.scene, _context.camera, _context.viewport);
-        
-        render();
-    }
-    
-    private function render() : Void
-    {
-        // Sphere の回転
-        _context.sphere.rotationY += _context.sphereRotation;
-        
-        // レンダリング
-        _context.renderer.renderScene(_context.scene, _context.camera, _context.viewport);
-        
-        // ループさせる
-        next(render);
-    }
+	public function new(context:Context)
+	{
+		super();
+		_context = context;
+	}
+	
+	private var _context:Context;
+	
+	override private function run():Void
+	{
+		// 最初のレンダリングがおかしいので 1 回多くレンダリングする
+		_context.renderer.renderScene(_context.scene, _context.camera, _context.viewport);
+		
+		render();
+	}
+	
+	private function render():Void
+	{
+		// Sphere の回転
+		_context.sphere.rotationY += _context.sphereRotation;
+		
+		// レンダリング
+		_context.renderer.renderScene(_context.scene, _context.camera, _context.viewport);
+		
+		// ループさせる
+		next(render);
+	}
 }

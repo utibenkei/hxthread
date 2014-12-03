@@ -1,10 +1,9 @@
 /*
- * ActionScript Thread Library
+ * Haxe port of ActionScript Thread Library
  * 
  * Licensed under the MIT License
  * 
- * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ * Copyright (c) 2014 utibenkei
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,20 +28,20 @@ package org.libspark.thread.utils;
 
 
 /**
-	 * IProgressNotifier インターフェイスは、進捗状況が通知可能であることを示します.
-	 * 
-	 * @author	yossy:beinteractive
-	 * @see	org.libspark.thread.utils.IProgress
-	 */
+ * IProgressNotifier インターフェイスは、進捗状況が通知可能であることを示します.
+ * 
+ * @author	utibenkei
+ * @see	org.libspark.thread.utils.IProgress
+ */
 interface IProgressNotifier
 {
-    
-    /**
-		 * 進捗状況を通知するための IProgress インターフェイスのインスタンスを返します.
-		 * 
-		 * @see	org.libspark.thread.utils.IProgress
-		 */
-    var progress(get, never) : IProgress;
+	
+	/**
+	 * 進捗状況を通知するための IProgress インターフェイスのインスタンスを返します.
+	 * 
+	 * @see	org.libspark.thread.utils.IProgress
+	 */
+	var progress(get, never):IProgress;
 
 }
 

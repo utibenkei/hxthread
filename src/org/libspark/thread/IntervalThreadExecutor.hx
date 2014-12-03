@@ -1,10 +1,9 @@
 /*
- * ActionScript Thread Library
+ * Haxe port of ActionScript Thread Library
  * 
  * Licensed under the MIT License
  * 
- * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ * Copyright (c) 2014 utibenkei
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,59 +32,59 @@ import flash.events.TimerEvent;
 import flash.utils.Timer;
 
 /**
-	 * IntervalThreadExecutor クラスは IThreadExecutor インターフェイスの実装クラスで、
-	 * 指定された時間の間隔でスレッドを実行します.
-	 * 
-	 * @author	yossy:beinteractive
-	 */
+ * IntervalThreadExecutor クラスは IThreadExecutor インターフェイスの実装クラスで、
+ * 指定された時間の間隔でスレッドを実行します.
+ * 
+ * @author	utibenkei
+ */
 class IntervalThreadExecutor implements IThreadExecutor
 {
-    /**
-		 * 新しい IntervalThreadExecutor クラスのインスタンスを作成します.
-		 * 
-		 * <p>ここで指定された時間の間隔でスレッドが実行されます。</p>
-		 * 
-		 * @param	interval	スレッドを実行する時間の間隔 (ミリ秒)
-		 */
-    public function new(interval : Float)
-    {
-        _timer = new Timer(interval);
-        _timer.addEventListener(TimerEvent.TIMER, timerHandler);
-    }
-    
-    private var _timer : Timer;
-    
-    /**
-		 * @inheritDoc
-		 */
-    public function start() : Void
-    {
-        if (_timer.running) {
-            return;
-        }
-        
-        _timer.start();
-    }
-    
-    /**
-		 * @inheritDoc
-		 */
-    public function stop() : Void
-    {
-        if (!_timer.running) {
-            return;
-        }
-        
-        _timer.stop();
-    }
-    
-    /**
-		 * タイマーハンドラ
-		 * 
-		 * @private
-		 */
-    private function timerHandler(e : TimerEvent) : Void
-    {
-        Thread.executeAllThreads();
-    }
+	/**
+	 * 新しい IntervalThreadExecutor クラスのインスタンスを作成します.
+	 * 
+	 * <p>ここで指定された時間の間隔でスレッドが実行されます。</p>
+	 * 
+	 * @param	interval	スレッドを実行する時間の間隔 (ミリ秒)
+	 */
+	public function new(interval:Float)
+	{
+		_timer = new Timer(interval);
+		_timer.addEventListener(TimerEvent.TIMER, timerHandler);
+	}
+	
+	private var _timer:Timer;
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function start():Void
+	{
+		if (_timer.running) {
+			return;
+		}
+		
+		_timer.start();
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function stop():Void
+	{
+		if (!_timer.running) {
+			return;
+		}
+		
+		_timer.stop();
+	}
+	
+	/**
+	 * タイマーハンドラ
+	 * 
+	 * @private
+	 */
+	private function timerHandler(e:TimerEvent):Void
+	{
+		Thread.executeAllThreads();
+	}
 }

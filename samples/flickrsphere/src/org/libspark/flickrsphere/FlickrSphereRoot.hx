@@ -4,7 +4,7 @@
  * Licensed under the MIT License
  * 
  * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ *					  Spark project	 (www.libspark.org)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,36 +36,36 @@ import flash.events.Event;
 
 
 /**
-	 * FlickrSphereRoot クラスは、FlickrSphere のドキュメントルートとなるクラスです.
-	 * 
-	 * SWF 全体のロード完了を待って、メインのクラスである FlickrSphere クラスを実行します。
-	 */
+ * FlickrSphereRoot クラスは、FlickrSphere のドキュメントルートとなるクラスです.
+ * 
+ * SWF 全体のロード完了を待って、メインのクラスである FlickrSphere クラスを実行します。
+ */
 class FlickrSphereRoot extends MovieClip
 {
-    public function new()
-    {
-        super();
-        // ステージ設定
-        stage.scaleMode = StageScaleMode.NO_SCALE;
-        stage.align = StageAlign.LEFT;
-        
-        // 初期フレームハンドラ
-        addEventListener(Event.ENTER_FRAME, initialEnterFrameHandler);
-    }
-    
-    private function initialEnterFrameHandler(e : Event) : Void
-    {
-        // 3 フレーム目まで到達すればロードが完了している
-        if (currentFrame == 3) {
-            // のでイベントリスナー削除
-            removeEventListener(Event.ENTER_FRAME, initialEnterFrameHandler);
-            // これ以上進まないようストップ
-            stop();
-            
-            // メインのクラスを取得
-            var mainClass : Class<Dynamic> = Type.getClass(Type.resolveClass("org.libspark.flickrsphere.FlickrSphere"));
-            // 開始
-            addChild(Type.createInstance(mainClass, []));
-        }
-    }
+	public function new()
+	{
+		super();
+		// ステージ設定
+		stage.scaleMode = StageScaleMode.NO_SCALE;
+		stage.align = StageAlign.LEFT;
+		
+		// 初期フレームハンドラ
+		addEventListener(Event.ENTER_FRAME, initialEnterFrameHandler);
+	}
+	
+	private function initialEnterFrameHandler(e:Event):Void
+	{
+		// 3 フレーム目まで到達すればロードが完了している
+		if (currentFrame == 3) {
+			// のでイベントリスナー削除
+			removeEventListener(Event.ENTER_FRAME, initialEnterFrameHandler);
+			// これ以上進まないようストップ
+			stop();
+			
+			// メインのクラスを取得
+			var mainClass:Class<Dynamic> = Type.getClass(Type.resolveClass("org.libspark.flickrsphere.FlickrSphere"));
+			// 開始
+			addChild(Type.createInstance(mainClass, []));
+		}
+	}
 }

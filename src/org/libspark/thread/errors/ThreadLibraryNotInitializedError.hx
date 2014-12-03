@@ -1,10 +1,9 @@
 /*
- * ActionScript Thread Library
+ * Haxe port of ActionScript Thread Library
  * 
  * Licensed under the MIT License
  * 
- * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ * Copyright (c) 2014 utibenkei
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,20 +29,20 @@ package org.libspark.thread.errors;
 import flash.errors.Error;
 
 /**
-	 * ThreadLibraryNotInitializedError 例外は、 Thread Library が初期化されていない状態でスレッドを実行しようするとスローされます.
-	 * 
-	 * @author	yossy:beinteractive
-	 */
+ * ThreadLibraryNotInitializedError 例外は、 Thread Library が初期化されていない状態でスレッドを実行しようするとスローされます.
+ * 
+ * @author	utibenkei
+ */
 class ThreadLibraryNotInitializedError extends Error
 {
-    /**
-		 * 新しい ThreadLibraryNotInitializedError クラスのインスタンスを作成します.
-		 * 
-		 * @param	message	エラーメッセージ
-		 * @param	id	エラー識別子
-		 */
-    public function new(message : String = "", id : Int = 0)
-    {
-        super(message, id);
-    }
+	/**
+	 * 新しい ThreadLibraryNotInitializedError クラスのインスタンスを作成します.
+	 * 
+	 * @param	message	エラーメッセージ
+	 * @param	id	エラー識別子
+	 */
+	public function new(message:String = "", id:Int = 0)
+	{
+		super(message, id);
+	}
 }

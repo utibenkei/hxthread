@@ -1,10 +1,9 @@
 /*
- * ActionScript Thread Library
+ * Haxe port of ActionScript Thread Library
  * 
  * Licensed under the MIT License
  * 
- * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ * Copyright (c) 2014 utibenkei
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,20 +30,20 @@ import flash.errors.Error;
 
 
 /**
-	 * CurrentThreadNotFoundError 例外は、カレントスレッドが必要とされる場面でカレントスレッドが見つからない (null の場合) にスローされます.
-	 * 
-	 * @author	yossy:beinteractive
-	 */
+ * CurrentThreadNotFoundError 例外は、カレントスレッドが必要とされる場面でカレントスレッドが見つからない (null の場合) にスローされます.
+ * 
+ * @author	utibenkei
+ */
 class CurrentThreadNotFoundError extends Error
 {
-    /**
-		 * 新しい CurrentThreadNotFoundError クラスのインスタンスを作成します.
-		 * 
-		 * @param	message	エラーメッセージ
-		 * @param	id	エラー識別子
-		 */
-    public function new(message : String = "", id : Int = 0)
-    {
-        super(message, id);
-    }
+	/**
+	 * 新しい CurrentThreadNotFoundError クラスのインスタンスを作成します.
+	 * 
+	 * @param	message	エラーメッセージ
+	 * @param	id	エラー識別子
+	 */
+	public function new(message:String = "", id:Int = 0)
+	{
+		super(message, id);
+	}
 }

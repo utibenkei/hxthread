@@ -4,7 +4,7 @@
  * Licensed under the MIT License
  * 
  * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ *					  Spark project	 (www.libspark.org)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,38 +35,38 @@ import org.libspark.thread.Thread;
 import org.libspark.thread.threads.tweener.TweenerThread;
 
 /**
-	 * ResizeHandlingThread クラスは、リサイズ時の再レイアウトを行います.
-	 */
+ * ResizeHandlingThread クラスは、リサイズ時の再レイアウトを行います.
+ */
 class ResizeHandlingThread extends Thread
 {
-    public function new(context : Context)
-    {
-        super();
-        _context = context;
-    }
-    
-    private var _context : Context;
-    
-    override private function run() : Void
-    {
-        resizeHandler();
-    }
-    
-    private function resizeHandler(e : Event = null) : Void
-    {
-        var stage : Stage = _context.stage;
-        var sw : Float = stage.stageWidth;
-        var sh : Float = stage.stageHeight;
-        
-        // Viewport 位置
-        _context.viewport.x = (sw - 800) / 2;
-        
-        // タイトル位置
-        _context.layer.getChildByName("title").x = sw - 10;
-        
-        // ロゴ位置
-        _context.layer.getChildByName("logos").x = sw - 10;
-        
-        event(stage, Event.RESIZE, resizeHandler);
-    }
+	public function new(context:Context)
+	{
+		super();
+		_context = context;
+	}
+	
+	private var _context:Context;
+	
+	override private function run():Void
+	{
+		resizeHandler();
+	}
+	
+	private function resizeHandler(e:Event = null):Void
+	{
+		var stage:Stage = _context.stage;
+		var sw:Float = stage.stageWidth;
+		var sh:Float = stage.stageHeight;
+		
+		// Viewport 位置
+		_context.viewport.x = (sw - 800) / 2;
+		
+		// タイトル位置
+		_context.layer.getChildByName("title").x = sw - 10;
+		
+		// ロゴ位置
+		_context.layer.getChildByName("logos").x = sw - 10;
+		
+		event(stage, Event.RESIZE, resizeHandler);
+	}
 }

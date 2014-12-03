@@ -1,10 +1,9 @@
 /*
- * ActionScript Thread Library
+ * Haxe port of ActionScript Thread Library
  * 
  * Licensed under the MIT License
  * 
- * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ * Copyright (c) 2014 utibenkei
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,73 +33,73 @@ import frocessing.core.F5Graphics2D;
 import org.libspark.thread.Thread;
 
 /**
-	 * Forcessing を実行するためのスレッドです.
-	 * 
-	 * <p>描画には F5Graphics2D クラスが使用されます。</p>
-	 * 
-	 * @author	yossy:beinteractive
-	 */
+ * Forcessing を実行するためのスレッドです.
+ * 
+ * <p>描画には F5Graphics2D クラスが使用されます。</p>
+ * 
+ * @author	utibenkei
+ */
 class Frocessing2DThread extends Thread
 {
-    private var fg(get, never) : F5Graphics2D;
+	private var fg(get, never):F5Graphics2D;
 
-    /**
-		 * 新しい Frocessing2DThread クラスのインスタンスを作成します.
-		 * 
-		 * @param	target	描画先となる Graphics
-		 */
-    public function new(target : Graphics)
-    {
-        super();
-        _fg = new F5Graphics2D(target);
-    }
-    
-    private var _fg : F5Graphics2D;
-    
-    /**
-		 * 描画をするための F5Graphics2D
-		 */
-    private function get_fg() : F5Graphics2D
-    {
-        return _fg;
-    }
-    
-    /**
-		 * @private
-		 */
-    override private function run() : Void
-    {
-        setup();
-        doDraw();
-    }
-    
-    /**
-		 * @private
-		 */
-    private function doDraw() : Void
-    {
-        fg.beginDraw();
-        draw();
-        fg.endDraw();
-        
-        next(doDraw);
-    }
-    
-    /**
-		 * このメソッドをオーバーライドして初期化処理を記述します.
-		 */
-    private function setup() : Void
-    {
-        
-        
-    }
-    
-    /**
-		 * このメソッドをオーバーライドして描画処理を記述します.
-		 */
-    private function draw() : Void
-    {
-        
-        
-    }
+	/**
+	 * 新しい Frocessing2DThread クラスのインスタンスを作成します.
+	 * 
+	 * @param	target	描画先となる Graphics
+	 */
+	public function new(target:Graphics)
+	{
+		super();
+		_fg = new F5Graphics2D(target);
+	}
+	
+	private var _fg:F5Graphics2D;
+	
+	/**
+	 * 描画をするための F5Graphics2D
+	 */
+	private function get_fg():F5Graphics2D
+	{
+		return _fg;
+	}
+	
+	/**
+	 * @private
+	 */
+	override private function run():Void
+	{
+		setup();
+		doDraw();
+	}
+	
+	/**
+	 * @private
+	 */
+	private function doDraw():Void
+	{
+		fg.beginDraw();
+		draw();
+		fg.endDraw();
+		
+		next(doDraw);
+	}
+	
+	/**
+	 * このメソッドをオーバーライドして初期化処理を記述します.
+	 */
+	private function setup():Void
+	{
+		
+		
+	}
+	
+	/**
+	 * このメソッドをオーバーライドして描画処理を記述します.
+	 */
+	private function draw():Void
+	{
+		
+		
+	}
 }

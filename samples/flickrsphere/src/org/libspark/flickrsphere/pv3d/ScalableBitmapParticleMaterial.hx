@@ -4,7 +4,7 @@
  * Licensed under the MIT License
  * 
  * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ *					  Spark project	 (www.libspark.org)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,31 +37,31 @@ import org.papervision3d.core.render.data.RenderSessionData;
 import org.papervision3d.core.render.draw.IParticleDrawer;
 
 /**
-	 * ScalableBitmapParticleMaterial クラスは、Particle クラスの userData['scale'] を用いて、パーティクルの拡大縮小を可能にした
-	 * BitmapParticleMaterial です.
-	 */
+ * ScalableBitmapParticleMaterial クラスは、Particle クラスの userData['scale'] を用いて、パーティクルの拡大縮小を可能にした
+ * BitmapParticleMaterial です.
+ */
 class ScalableBitmapParticleMaterial extends ParticleMaterial implements IParticleDrawer
 {
-    
-    private var scaleMatrix : Matrix;
-    
-    public function new(bitmap : BitmapData)
-    {
-        super(0, 0);
-        this.bitmap = bitmap;
-        this.scaleMatrix = new Matrix();
-    }
-    
-    override public function drawParticle(particle : Particle, graphics : Graphics, renderSessionData : RenderSessionData) : Void
-    {
-        var scale : Float = ((particle.userData != null && Lambda.has(particle.userData.data, "scale"))) ? particle.userData.data["scale"] : 1.0;
-        scaleMatrix.a = particle.renderScale * scale;
-        scaleMatrix.d = particle.renderScale * scale;
-        scaleMatrix.tx = particle.vertex3D.vertex3DInstance.x;
-        scaleMatrix.ty = particle.vertex3D.vertex3DInstance.y;
-        graphics.beginBitmapFill(bitmap, scaleMatrix, false, smooth);
-        graphics.drawRect(particle.vertex3D.vertex3DInstance.x, particle.vertex3D.vertex3DInstance.y, particle.renderScale * particle.size * scale, particle.renderScale * particle.size * scale);
-        graphics.endFill();
-        renderSessionData.renderStatistics.particles++;
-    }
+	
+	private var scaleMatrix:Matrix;
+	
+	public function new(bitmap:BitmapData)
+	{
+		super(0, 0);
+		this.bitmap = bitmap;
+		this.scaleMatrix = new Matrix();
+	}
+	
+	override public function drawParticle(particle:Particle, graphics:Graphics, renderSessionData:RenderSessionData):Void
+	{
+		var scale:Float = ((particle.userData != null && Lambda.has(particle.userData.data, "scale"))) ? particle.userData.data["scale"]:1.0;
+		scaleMatrix.a = particle.renderScale * scale;
+		scaleMatrix.d = particle.renderScale * scale;
+		scaleMatrix.tx = particle.vertex3D.vertex3DInstance.x;
+		scaleMatrix.ty = particle.vertex3D.vertex3DInstance.y;
+		graphics.beginBitmapFill(bitmap, scaleMatrix, false, smooth);
+		graphics.drawRect(particle.vertex3D.vertex3DInstance.x, particle.vertex3D.vertex3DInstance.y, particle.renderScale * particle.size * scale, particle.renderScale * particle.size * scale);
+		graphics.endFill();
+		renderSessionData.renderStatistics.particles++;
+	}
 }

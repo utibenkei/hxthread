@@ -1,10 +1,9 @@
 /*
- * ActionScript Thread Library
+ * Haxe port of ActionScript Thread Library
  * 
  * Licensed under the MIT License
  * 
- * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ * Copyright (c) 2014 utibenkei
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,20 +29,20 @@ package org.libspark.thread.errors;
 import flash.errors.Error;
 
 /**
-	 * InterruptedError 例外は、スレッドが待機中に割り込まれ、かつ割り込みハンドラが設定されていない場合にスローされます.
-	 * 
-	 * @author	yossy:beinteractive
-	 */
+ * InterruptedError 例外は、スレッドが待機中に割り込まれ、かつ割り込みハンドラが設定されていない場合にスローされます.
+ * 
+ * @author	utibenkei
+ */
 class InterruptedError extends Error
 {
-    /**
-		 * 新しい InterruptedError クラスのインスタンスを作成します.
-		 * 
-		 * @param	message	エラーメッセージ
-		 * @param	id	エラー識別子
-		 */
-    public function new(message : String = "", id : Int = 0)
-    {
-        super(message, id);
-    }
+	/**
+	 * 新しい InterruptedError クラスのインスタンスを作成します.
+	 * 
+	 * @param	message	エラーメッセージ
+	 * @param	id	エラー識別子
+	 */
+	public function new(message:String = "", id:Int = 0)
+	{
+		super(message, id);
+	}
 }

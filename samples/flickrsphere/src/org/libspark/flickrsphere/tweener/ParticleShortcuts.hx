@@ -4,7 +4,7 @@
  * Licensed under the MIT License
  * 
  * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ *					  Spark project	 (www.libspark.org)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,33 +32,33 @@ import caurina.transitions.Tweener;
 import org.papervision3d.core.geom.renderables.Particle;
 
 /**
-	 * ParticleShortcuts クラスは、Particle のための Tweener スペシャルプロパティを定義します.
-	 */
+ * ParticleShortcuts クラスは、Particle のための Tweener スペシャルプロパティを定義します.
+ */
 class ParticleShortcuts
 {
-    public static function initialize() : Void
-    {
-        Tweener.registerSpecialProperty("particleScale", getParticleScale, setParticleScale);
-    }
-    
-    private static function getParticleScale(obj : Dynamic, param : Array<Dynamic>, extra : Dynamic = null) : Float
-    {
-        var p : Particle = try cast(obj, Particle) catch(e:Dynamic) null;
-        if (p != null && p.userData != null) {
-            return p.userData.data["scale"];
-        }
-        return NaN;
-    }
-    
-    private static function setParticleScale(obj : Dynamic, value : Float, param : Array<Dynamic>, extra : Dynamic = null) : Void
-    {
-        var p : Particle = try cast(obj, Particle) catch(e:Dynamic) null;
-        if (p != null && p.userData != null) {
-            p.userData.data["scale"] = value;
-        }
-    }
+	public static function initialize():Void
+	{
+		Tweener.registerSpecialProperty("particleScale", getParticleScale, setParticleScale);
+	}
+	
+	private static function getParticleScale(obj:Dynamic, param:Array<Dynamic>, extra:Dynamic = null):Float
+	{
+		var p:Particle = try cast(obj, Particle) catch(e:Dynamic) null;
+		if (p != null && p.userData != null) {
+			return p.userData.data["scale"];
+		}
+		return NaN;
+	}
+	
+	private static function setParticleScale(obj:Dynamic, value:Float, param:Array<Dynamic>, extra:Dynamic = null):Void
+	{
+		var p:Particle = try cast(obj, Particle) catch(e:Dynamic) null;
+		if (p != null && p.userData != null) {
+			p.userData.data["scale"] = value;
+		}
+	}
 
-    public function new()
-    {
-    }
+	public function new()
+	{
+	}
 }

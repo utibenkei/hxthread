@@ -1,10 +1,9 @@
 /*
- * ActionScript Thread Library
+ * Haxe port of ActionScript Thread Library
  * 
  * Licensed under the MIT License
  * 
- * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ * Copyright (c) 2014 utibenkei
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,58 +33,58 @@ import flash.events.IEventDispatcher;
 import org.libspark.thread.Thread;
 
 /**
-	 * EventDispatcherThread は IEventDispatcher インターフェイスを実装したスレッドです
-	 * 
-	 * @author	yossy:beinteractive
-	 */
+ * EventDispatcherThread は IEventDispatcher インターフェイスを実装したスレッドです
+ * 
+ * @author	utibenkei
+ */
 class EventDispatcherThread extends Thread implements IEventDispatcher
 {
-    public function new()
-    {
-        super();
-        _dispatcher = new EventDispatcher(this);
-    }
-    
-    private var _dispatcher : IEventDispatcher;
-    
-    /**
-		 * @inheritDoc
-		 */
-    public function addEventListener(type : String, listener : Function, useCapture : Bool = false, priority : Int = 0, useWeakReference : Bool = false) : Void
-    {
-        _dispatcher.addEventListener(type, listener, useCapture, priority, useWeakReference);
-    }
-    
-    /**
-		 * @inheritDoc
-		 */
-    public function dispatchEvent(event : Event) : Bool
-    {
-        return _dispatcher.dispatchEvent(event);
-    }
-    
-    /**
-		 * @inheritDoc
-		 */
-    public function hasEventListener(type : String) : Bool
-    {
-        return _dispatcher.hasEventListener(type);
-    }
-    
-    /**
-		 * @inheritDoc
-		 */
-    public function removeEventListener(type : String, listener : Function, useCapture : Bool = false) : Void
-    {
-        _dispatcher.removeEventListener(type, listener, useCapture);
-    }
-    
-    /**
-		 * @inheritDoc
-		 */
-    public function willTrigger(type : String) : Bool
-    {
-        return _dispatcher.willTrigger(type);
-    }
+	public function new()
+	{
+		super();
+		_dispatcher = new EventDispatcher(this);
+	}
+	
+	private var _dispatcher:IEventDispatcher;
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function addEventListener(type:String, listener:Function, useCapture:Bool = false, priority:Int = 0, useWeakReference:Bool = false):Void
+	{
+		_dispatcher.addEventListener(type, listener, useCapture, priority, useWeakReference);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function dispatchEvent(event:Event):Bool
+	{
+		return _dispatcher.dispatchEvent(event);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function hasEventListener(type:String):Bool
+	{
+		return _dispatcher.hasEventListener(type);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function removeEventListener(type:String, listener:Function, useCapture:Bool = false):Void
+	{
+		_dispatcher.removeEventListener(type, listener, useCapture);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function willTrigger(type:String):Bool
+	{
+		return _dispatcher.willTrigger(type);
+	}
 }
 

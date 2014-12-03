@@ -1,10 +1,9 @@
 /*
- * ActionScript Thread Library
+ * Haxe port of ActionScript Thread Library
  * 
  * Licensed under the MIT License
  * 
- * Copyright (c) 2008 BeInteractive! (www.be-interactive.org) and
- *                    Spark project  (www.libspark.org)
+ * Copyright (c) 2014 utibenkei
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,57 +32,57 @@ import flash.display.MovieClip;
 import flash.events.Event;
 
 /**
-	 * EnterFrameThreadExecutor クラスは IThreadExecutor インターフェイスの実装クラスで、
-	 * フレーム実行のタイミングでスレッドを実行します.
-	 * 
-	 * @author	yossy:beinteractive
-	 */
+ * EnterFrameThreadExecutor クラスは IThreadExecutor インターフェイスの実装クラスで、
+ * フレーム実行のタイミングでスレッドを実行します.
+ * 
+ * @author	utibenkei
+ */
 class EnterFrameThreadExecutor implements IThreadExecutor
 {
-    /**
-		 * 新しい EnterFrameThreadExecutor クラスのインスタンスを作成します
-		 */
-    public function new()
-    {
-        
-    }
-    
-    private var _clip : MovieClip;
-    
-    /**
-		 * @inheritDoc
-		 */
-    public function start() : Void
-    {
-        if (_clip != null) {
-            return;
-        }
-        
-        _clip = new MovieClip();
-        _clip.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
-    }
-    
-    /**
-		 * @inheritDoc
-		 */
-    public function stop() : Void
-    {
-        if (_clip == null) {
-            return;
-        }
-        
-        _clip.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
-        _clip = null;
-    }
-    
-    /**
-		 * フレーム実行ハンドラ
-		 * 
-		 * @param	e	イベント
-		 * @private
-		 */
-    private function enterFrameHandler(e : Event) : Void
-    {
-        Thread.executeAllThreads();
-    }
+	/**
+	 * 新しい EnterFrameThreadExecutor クラスのインスタンスを作成します
+	 */
+	public function new()
+	{
+		
+	}
+	
+	private var _clip:MovieClip;
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function start():Void
+	{
+		if (_clip != null) {
+			return;
+		}
+		
+		_clip = new MovieClip();
+		_clip.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public function stop():Void
+	{
+		if (_clip == null) {
+			return;
+		}
+		
+		_clip.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
+		_clip = null;
+	}
+	
+	/**
+	 * フレーム実行ハンドラ
+	 * 
+	 * @param	e	イベント
+	 * @private
+	 */
+	private function enterFrameHandler(e:Event):Void
+	{
+		Thread.executeAllThreads();
+	}
 }
