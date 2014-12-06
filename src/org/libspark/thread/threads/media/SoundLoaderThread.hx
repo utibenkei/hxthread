@@ -75,7 +75,7 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 		super();
 		_request = request;
 		_context = context;
-		_sound = (sound != null) ? new Sound();
+		_sound = (sound != null) ? sound : new Sound();
 		_progress = new Progress();
 	}
 	
@@ -131,7 +131,7 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 		events();
 		
 		// 割り込みハンドラを設定
-		interrupted(interruptedHandler);
+		Thread.interrupted(interruptedHandler);
 		
 		// ロード開始
 		_sound.load(_request, _context);
@@ -144,9 +144,9 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 	 */
 	private function events():Void
 	{
-		event(_sound, Event.COMPLETE, completeHandler);
-		event(_sound, ProgressEvent.PROGRESS, progressHandler);
-		event(_sound, IOErrorEvent.IO_ERROR, ioErrorHandler);
+		Thread.event(_sound, Event.COMPLETE, completeHandler);
+		Thread.event(_sound, ProgressEvent.PROGRESS, progressHandler);
+		Thread.event(_sound, IOErrorEvent.IO_ERROR, ioErrorHandler);
 	}
 	
 	/**
@@ -175,7 +175,7 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 		_progress.progress(e.bytesLoaded);
 		
 		// 割り込みハンドラを設定
-		interrupted(interruptedHandler);
+		Thread.interrupted(interruptedHandler);
 		
 		// 再びイベント待ち
 		events();
