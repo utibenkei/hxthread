@@ -57,7 +57,7 @@ class Monitor implements IMonitor
 	 */
 	private function getWaitors():Array<Thread>
 	{
-		return (_waitors != null) ? _waitors:(_waitors = []);
+		return (_waitors != null) ? _waitors : _waitors = [];
 	}
 	
 	/**

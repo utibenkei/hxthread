@@ -1,33 +1,39 @@
 package org.libspark.thread;
 
-import nme.errors.ArgumentError;
-import nme.errors.Error;
-import org.libspark.thread.EnterFrameThreadExecutor;
-import org.libspark.thread.TesterThread;
-
+import flash.errors.ArgumentError;
+import flash.errors.Error;
 import flash.events.Event;
-import org.libspark.as3unit.assert.*;
-import org.libspark.as3unit.Before;
-import org.libspark.as3unit.After;
-import org.libspark.as3unit.Test;
-import org.libspark.as3unit.TestExpected;
-
-
-
-
-
-
-
+import massive.munit.Assert;
+import massive.munit.async.AsyncFactory;
+import massive.munit.util.Timer;
+import org.libspark.thread.EnterFrameThreadExecutor;
 import org.libspark.thread.Thread;
-import org.libspark.thread.ThreadState;
+
 
 class ExceptionTest
 {
+	
+	public function new() 
+	{
+		
+	}
+	
+	@BeforeClass
+	public function beforeClass():Void
+	{
+	}
+	
+	@AfterClass
+	public function afterClass():Void
+	{
+	}
+	
 	/**
 	 * テストに相互作用が出ないようにテスト毎にスレッドライブラリを初期化。
 	 * 通常であれば、initializeの呼び出しは一度きり。
 	 */
-	private function initialize():Void
+	@Before
+	public function setup():Void
 	{
 		Thread.initialize(new EnterFrameThreadExecutor());
 	}
@@ -35,32 +41,35 @@ class ExceptionTest
 	/**
 	 * 念のため、終了処理もしておく
 	 */
-	private function finalize():Void
+	@After
+	public function tearDown():Void
 	{
 		Thread.initialize(null);
 	}
 	
+	
 	/**
 	 * 例外が発生した場合に終了フェーズに移行して終了することができるか。
 	 */
-	private function exception():Void
+	@AsyncTest
+	public function exception(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ExceptionTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * キャッチされない例外が発生した場合に uncaughtErrorHandler が呼び出されるか。
 	 */
-	private function uncaughtException():Void
+	@AsyncTest
+	public function uncaughtException(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
@@ -75,14 +84,13 @@ class ExceptionTest
 					th = tt;
 				};
 		
-		t.addEventListener(Event.COMPLETE, async(function(ev:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(ev:Event):Void
 						{
 							Thread.uncaughtErrorHandler = null;
 							
-							assertSame(u.ex, e);
-							assertSame(u, th);
+							Assert.areSame(u.ex, e);
+							Assert.areSame(u, th);
 						}, 1000));
-		
 		t.start();
 	}
 	
@@ -90,20 +98,20 @@ class ExceptionTest
 	 * 例外が発生した場合に登録されている例外ハンドラを実行できるか。
 	 * 例外ハンドラが実行された後は、元の実行関数に戻る。
 	 */
-	private function exceptionWithHandler():Void
+	@AsyncTest
+	public function exceptionWithHandler(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var e:ExceptionWithHandlerTestThread = new ExceptionWithHandlerTestThread();
 		var t:TesterThread = new TesterThread(e);
 		
-		t.addEventListener(Event.COMPLETE, async(function(ev:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(ev:Event):Void
 						{
 							Assert.areEqual("run error run2 finalize ", Static.log);
-							assertSame(e.ex, e.e);
-							assertSame(e, e.t);
+							Assert.areSame(e.ex, e.e);
+							Assert.areSame(e, e.t);
 						}, 1000));
-		
 		t.start();
 	}
 	
@@ -111,208 +119,196 @@ class ExceptionTest
 	 * 発生した例外の型によって正しい例外ハンドラを選択することができるか。
 	 * 型のマッチはスーパークラスでも有効。
 	 */
-	private function exceptionHandlerSelect():Void
+	@AsyncTest
+	public function exceptionHandlerSelect(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ExceptionHandlerSelectTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("throw.error error throw.argument argument throw.string string throw.number finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * 例外ハンドラ内で次に実行する実行関数を指定した場合、その実行関数に移行することができるか。
 	 */
-	private function exceptionRecovery():Void
+	@AsyncTest
+	public function exceptionRecovery(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ExceptionRecoveryTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run error run3 finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * 次の実行関数に移った際に、前の実行関数で登録された例外ハンドラがリセットされているか。
 	 */
-	private function exceptionHandlerReset():Void
+	@AsyncTest
+	public function exceptionHandlerReset(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ExceptionHandlerResetTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run run2 finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * reset = false で例外ハンドラを登録した場合に、リセットされていないか。
 	 */
-	private function exceptionHandlerNoReset():Void
+	@AsyncTest
+	public function exceptionHandlerNoReset(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ExceptionHandlerNoResetTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run run2 error finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * 終了フェーズで例外が発生した場合に親に伝播することができるか。
 	 */
-	private function exceptionInFinalize():Void
+	@AsyncTest
+	public function exceptionInFinalize(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ExceptionInFinalizeTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("p.run c.finalize p.error p.finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * 終了フェーズで例外が発生した場合に例外ハンドラで処理することができるか。
 	 */
-	private function exceptionInFinalizeWithHandler():Void
+	@AsyncTest
+	public function exceptionInFinalizeWithHandler(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ExceptionInFinalizeWithHandlerTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("p.run c.finalize c.error p.finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * 例外ハンドラで例外が発生した場合に親に伝播することができるか。
 	 */
-	private function exceptionInHandler():Void
+	@AsyncTest
+	public function exceptionInHandler(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ExceptionInHandlerTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("p.run c.run c.error p.error ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * 子スレッドで発生した例外を親に伝播することができるか。
 	 */
-	private function childException():Void
+	@AsyncTest
+	public function childException(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var c:ChildExceptionTestThread = new ChildExceptionTestThread();
 		var t:TesterThread = new TesterThread(c);
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("p.run c.run p.error c.finalize p.finalize ", Static.log);
-							assertSame(c.child.ex, c.e);
-							assertSame(c.child, c.t);
+							Assert.areSame(c.child.ex, c.e);
+							Assert.areSame(c.child, c.t);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * 親スレッドが待機中に子スレッドで発生した例外を親に伝播することができるか。
 	 */
-	private function childExceptionWhileWaiting():Void
+	@AsyncTest
+	public function childExceptionWhileWaiting(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ChildExceptionWhileWaitingTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("p.run c.run c.run2 p.error c.finalize p.finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * 子スレッドで発生した例外を子スレッドの例外ハンドラで処理することができるか。
 	 */
-	private function childExceptionHandler():Void
+	@AsyncTest
+	public function childExceptionHandler(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ChildExceptionHandlerTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("p.run c.run p.run2 c.error p.finalize c.finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * 孫スレッドで発生した例外を伝播することができるか。
 	 */
-	private function grandchildException():Void
+	@AsyncTest
+	public function grandchildException(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new GrandchildExceptionTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("p.run c.run p.run2 g.run c.run2 p.run2 g.run2 c.finalize p.error p.finalize g.finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
-
-	public function new()
-	{
-	}
+	
 }
 
 
-
-class Static
-{
-	public static var log:String;
-
-	public function new()
-	{
-	}
-}
 
 class ExceptionTestThread extends Thread
 {
@@ -320,7 +316,7 @@ class ExceptionTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		next(run2);
+		Thread.next(run2);
 		
 		throw new Error();
 	}
@@ -349,7 +345,7 @@ class UncaughtExceptionTestThread extends Thread
 	{
 		throw ex;
 	}
-
+	
 	public function new()
 	{
 		super();
@@ -366,8 +362,8 @@ class ExceptionWithHandlerTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		next(run2);
-		error(Error, runError);
+		Thread.next(run2);
+		Thread.error(Error, runError);
 		
 		throw ex;
 	}
@@ -400,11 +396,11 @@ class ExceptionHandlerSelectTestThread extends Thread
 {
 	override private function run():Void
 	{
-		error(Error, runError, false);
-		error(ArgumentError, runArgumentError, false);
-		error(String, runString, false);
+		Thread.error(Error, runError, false);
+		Thread.error(ArgumentError, runArgumentError, false);
+		Thread.error(String, runString, false);
 		
-		next(throwError);
+		Thread.next(throwError);
 	}
 	
 	private function throwError():Void
@@ -418,7 +414,7 @@ class ExceptionHandlerSelectTestThread extends Thread
 	{
 		Static.log += "error ";
 		
-		next(throwArgumentError);
+		Thread.next(throwArgumentError);
 	}
 	
 	private function throwArgumentError():Void
@@ -432,7 +428,7 @@ class ExceptionHandlerSelectTestThread extends Thread
 	{
 		Static.log += "argument ";
 		
-		next(throwString);
+		Thread.next(throwString);
 	}
 	
 	private function throwString():Void
@@ -446,14 +442,15 @@ class ExceptionHandlerSelectTestThread extends Thread
 	{
 		Static.log += "string ";
 		
-		next(throwNumber);
+		Thread.next(throwNumber);
 	}
 	
 	private function throwNumber():Void
 	{
 		Static.log += "throw.number ";
 		
-		throw new Float(1.0);
+		//throw new Float(1.0);
+		throw 1.0;
 	}
 	
 	override private function finalize():Void
@@ -473,8 +470,8 @@ class ExceptionRecoveryTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		next(run2);
-		error(Error, runError);
+		Thread.next(run2);
+		Thread.error(Error, runError);
 		
 		throw new Error();
 	}
@@ -488,7 +485,7 @@ class ExceptionRecoveryTestThread extends Thread
 	{
 		Static.log += "error ";
 		
-		next(run3);
+		Thread.next(run3);
 	}
 	
 	private function run3():Void
@@ -513,8 +510,8 @@ class ExceptionHandlerResetTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		next(run2);
-		error(Error, runError);
+		Thread.next(run2);
+		Thread.error(Error, runError);
 	}
 	
 	private function run2():Void
@@ -546,8 +543,8 @@ class ExceptionHandlerNoResetTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		next(run2);
-		error(Error, runError, false);
+		Thread.next(run2);
+		Thread.error(Error, runError, false);
 	}
 	
 	private function run2():Void
@@ -581,20 +578,20 @@ class ExceptionInFinalizeTestThread extends Thread
 		
 		new ExceptionInFinalizeTestChildThread().start();
 		
-		next(run2);
+		Thread.next(run2);
 	}
 	
 	private function run2():Void
 	{
-		next(run2);
-		error(Error, runError);
+		Thread.next(run2);
+		Thread.error(Error, runError);
 	}
 	
 	private function runError(e:Error, t:Thread):Void
 	{
 		Static.log += "p.error ";
 		
-		next(null);
+		Thread.next(null);
 	}
 	
 	override private function finalize():Void
@@ -631,24 +628,24 @@ class ExceptionInFinalizeWithHandlerTestThread extends Thread
 		
 		new ExceptionInFinalizeWithHandlerTestChildThread().start();
 		
-		next(run2);
+		Thread.next(run2);
 	}
 	
 	private function run2():Void
 	{
-		next(run3);
-		error(Error, runError);
+		Thread.next(run3);
+		Thread.error(Error, runError);
 	}
 	
 	private function run3():Void
 	{
-		next(run4);
-		error(Error, runError);
+		Thread.next(run4);
+		Thread.error(Error, runError);
 	}
 	
 	private function run4():Void
 	{
-		error(Error, runError);
+		Thread.error(Error, runError);
 	}
 	
 	private function runError(e:Error, t:Thread):Void
@@ -673,7 +670,7 @@ class ExceptionInFinalizeWithHandlerTestChildThread extends Thread
 	{
 		Static.log += "c.finalize ";
 		
-		error(Error, runError);
+		Thread.error(Error, runError);
 		
 		throw new Error();
 	}
@@ -697,20 +694,20 @@ class ExceptionInHandlerTestThread extends Thread
 		
 		new ExceptionInHandlerTestChildThread().start();
 		
-		next(run2);
+		Thread.next(run2);
 	}
 	
 	private function run2():Void
 	{
-		next(run2);
-		error(Error, runError);
+		Thread.next(run2);
+		Thread.error(Error, runError);
 	}
 	
 	private function runError(e:Error, t:Thread):Void
 	{
 		Static.log += "p.error ";
 		
-		next(null);
+		Thread.next(null);
 	}
 
 	public function new()
@@ -725,7 +722,7 @@ class ExceptionInHandlerTestChildThread extends Thread
 	{
 		Static.log += "c.run ";
 		
-		error(Error, runError);
+		Thread.error(Error, runError);
 		
 		throw new Error();
 	}
@@ -755,7 +752,7 @@ class ChildExceptionTestThread extends Thread
 		
 		child.start();
 		
-		error(Error, runError);
+		Thread.error(Error, runError);
 	}
 	
 	private function runError(e:Error, t:Thread):Void
@@ -807,7 +804,7 @@ class ChildExceptionWhileWaitingTestThread extends Thread
 		
 		new ChildExceptionWhileWaitingTestChildThread().start();
 		
-		error(Error, runError);
+		Thread.error(Error, runError);
 		wait();
 	}
 	
@@ -835,7 +832,7 @@ class ChildExceptionWhileWaitingTestChildThread extends Thread
 	{
 		Static.log += "c.run ";
 		
-		next(run2);
+		Thread.next(run2);
 	}
 	
 	private function run2():Void
@@ -864,8 +861,8 @@ class ChildExceptionHandlerTestThread extends Thread
 		
 		new ChildExceptionHandlerTestChildThread().start();
 		
-		error(Error, runError);
-		next(run2);
+		Thread.error(Error, runError);
+		Thread.next(run2);
 	}
 	
 	private function run2():Void
@@ -895,7 +892,7 @@ class ChildExceptionHandlerTestChildThread extends Thread
 	{
 		Static.log += "c.run ";
 		
-		error(Error, runError);
+		Thread.error(Error, runError);
 		
 		throw new Error();
 	}
@@ -924,22 +921,22 @@ class GrandchildExceptionTestThread extends Thread
 		
 		new GrandchildExceptionTestChildThread().start();
 		
-		next(run2);
+		Thread.next(run2);
 	}
 	
 	private function run2():Void
 	{
 		Static.log += "p.run2 ";
 		
-		next(run2);
-		error(Error, runError);
+		Thread.next(run2);
+		Thread.error(Error, runError);
 	}
 	
 	private function runError(e:Error, t:Thread):Void
 	{
 		Static.log += "p.error ";
 		
-		next(null);
+		Thread.next(null);
 	}
 	
 	override private function finalize():Void
@@ -961,14 +958,14 @@ class GrandchildExceptionTestChildThread extends Thread
 		
 		new GrandchildExceptionTestGrandchildThread().start();
 		
-		next(run2);
+		Thread.next(run2);
 	}
 	
 	private function run2():Void
 	{
 		Static.log += "c.run2 ";
 		
-		next(run2);
+		Thread.next(run2);
 	}
 	
 	override private function finalize():Void
@@ -988,7 +985,7 @@ class GrandchildExceptionTestGrandchildThread extends Thread
 	{
 		Static.log += "g.run ";
 		
-		next(run2);
+		Thread.next(run2);
 	}
 	
 	private function run2():Void

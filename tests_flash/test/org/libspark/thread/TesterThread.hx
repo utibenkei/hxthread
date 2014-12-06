@@ -1,11 +1,13 @@
 package org.libspark.thread;
 
 
+import flash.errors.Error;
+import flash.utils.Function;
 import org.libspark.thread.Thread;
 
 import flash.events.Event;
 import flash.events.EventDispatcher;
-import flash.utils.SetTimeout;
+//import flash.utils.SetTimeout;
 
 class TesterThread extends Thread
 {
@@ -29,7 +31,7 @@ class TesterThread extends Thread
 	override private function run():Void
 	{
 		if (_handleError) {
-			error(Dynamic, catchError);
+			Thread.error(Error, catchError);
 		}
 		if (_t != null) {
 			_t.start();
@@ -39,12 +41,15 @@ class TesterThread extends Thread
 	
 	private function catchError(e:Dynamic, t:Thread):Void
 	{
-		next(null);
+		Thread.next(null);
 	}
 	
 	override private function finalize():Void
 	{
-		setTimeout(dispatchHandler, 1);
+		//trace("TesterThread::finalize");
+		
+		//setTimeout(dispatchHandler, 1);
+		untyped __global__["flash.utils.setTimeout"](dispatchHandler, 200);
 	}
 	
 	private function dispatchHandler():Void

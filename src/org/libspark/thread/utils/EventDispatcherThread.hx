@@ -30,6 +30,7 @@ package org.libspark.thread.utils;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.events.IEventDispatcher;
+import flash.utils.Function;
 import org.libspark.thread.Thread;
 
 /**

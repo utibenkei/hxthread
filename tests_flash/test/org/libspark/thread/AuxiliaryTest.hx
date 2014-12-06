@@ -1,28 +1,37 @@
 package org.libspark.thread;
 
-import org.libspark.thread.EnterFrameThreadExecutor;
-import org.libspark.thread.TesterThread;
-
 import flash.events.Event;
-import org.libspark.as3unit.assert.*;
-import org.libspark.as3unit.Before;
-import org.libspark.as3unit.After;
-import org.libspark.as3unit.Test;
-
-
-
-
-
-
+import massive.munit.Assert;
+import massive.munit.async.AsyncFactory;
+import massive.munit.util.Timer;
+import org.libspark.thread.EnterFrameThreadExecutor;
 import org.libspark.thread.Thread;
+
 
 class AuxiliaryTest
 {
+	
+	public function new() 
+	{
+		
+	}
+	
+	@BeforeClass
+	public function beforeClass():Void
+	{
+	}
+	
+	@AfterClass
+	public function afterClass():Void
+	{
+	}
+	
 	/**
 	 * テストに相互作用が出ないようにテスト毎にスレッドライブラリを初期化。
 	 * 通常であれば、initializeの呼び出しは一度きり。
 	 */
-	private function initialize():Void
+	@Before
+	public function setup():Void
 	{
 		Thread.initialize(new EnterFrameThreadExecutor());
 	}
@@ -30,81 +39,73 @@ class AuxiliaryTest
 	/**
 	 * 念のため、終了処理もしておく
 	 */
-	private function finalize():Void
+	@After
+	public function tearDown():Void
 	{
 		Thread.initialize(null);
 	}
+	
 	
 	/**
 	 * join によってスレッドの終了を待機できているかどうか。
 	 * join の呼び出しによってスレッドが待機状態に入る場合は true それ以外(つまりスレッドがすでに終了している場合)は false が返る。
 	 */
-	private function join():Void
+	@AsyncTest
+	public function join(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var j:JoinTestThread = new JoinTestThread();
 		var t:TesterThread = new TesterThread(j);
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run child child child run2 ", Static.log);
 							Assert.isTrue(j.join1);
 							Assert.isFalse(j.join2);
 						}, 1000));
-		
 		t.start();
+		
 	}
+	
+	
 	
 	/**
 	 * 待機時間を指定した join で指定時間経過後、timeout で指定した実行関数に移行するかどうか。
 	 */
-	private function timedJoin():Void
+	@AsyncTest
+	public function timedJoin(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new TimedJoinTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run joined2 ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * 指定した時間以上 sleep できているかどうか。
 	 */
-	private function sleep():Void
+	@AsyncTest
+	public function sleep(factory:AsyncFactory):Void
 	{
 		var s:SleepTestThread = new SleepTestThread();
 		var t:TesterThread = new TesterThread(s);
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.isTrue(s.time >= 500);
 						}, 1000));
-		
 		t.start();
 	}
-
-	public function new()
-	{
-	}
 }
 
 
 
-
-class Static
-{
-	public static var log:String;
-
-	public function new()
-	{
-	}
-}
 
 class JoinTestThread extends Thread
 {
@@ -122,7 +123,7 @@ class JoinTestThread extends Thread
 		
 		join1 = _thread.join();
 		
-		next(run2);
+		Thread.next(run2);
 	}
 	
 	private function run2():Void
@@ -147,7 +148,7 @@ class JoinChildThread extends Thread
 		Static.log += "child ";
 		
 		if (++_count < 3) {
-			next(run);
+			Thread.next(run);
 		}
 	}
 
@@ -165,8 +166,8 @@ class TimedJoinTestThread extends Thread
 		var t:Thread = new Thread();
 		t.start();
 		t.join(20);
-		next(joined1);
-		timeout(joined2);
+		Thread.next(joined1);
+		Thread.timeout(joined2);
 	}
 	
 	private function joined1():Void
@@ -194,8 +195,8 @@ class SleepTestThread extends Thread
 	{
 		_t = Math.round(haxe.Timer.stamp() * 1000);
 		
-		sleep(500);
-		next(slept);
+		Thread.sleep(500);
+		Thread.next(slept);
 	}
 	
 	private function slept():Void

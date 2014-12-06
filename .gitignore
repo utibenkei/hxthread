@@ -1,0 +1,7 @@
+/tests
+/tests_flash/.temp
+/tests_flash/old
+/tests_flash/build
+/tests_flash/report
+/samples/autoShowHide/*.swf
+*.swf

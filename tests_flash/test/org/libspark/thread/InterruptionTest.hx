@@ -1,37 +1,39 @@
 package org.libspark.thread;
 
-import nme.errors.Error;
-import org.libspark.thread.EnterFrameThreadExecutor;
-import org.libspark.thread.TesterThread;
-
+import flash.errors.Error;
 import flash.events.Event;
-import org.libspark.as3unit.assert.*;
-import org.libspark.as3unit.Before;
-import org.libspark.as3unit.After;
-import org.libspark.as3unit.Test;
-import org.libspark.as3unit.TestExpected;
-
-
-
-
-
-
-
-
-import flash.events.EventDispatcher;
-import flash.events.IEventDispatcher;
-import flash.utils.SetTimeout;
+import massive.munit.Assert;
+import massive.munit.async.AsyncFactory;
+import massive.munit.util.Timer;
+import org.libspark.thread.EnterFrameThreadExecutor;
 import org.libspark.thread.errors.InterruptedError;
 import org.libspark.thread.Thread;
-import org.libspark.thread.ThreadState;
+
 
 class InterruptionTest
 {
+	
+	public function new() 
+	{
+		
+	}
+	
+	@BeforeClass
+	public function beforeClass():Void
+	{
+	}
+	
+	@AfterClass
+	public function afterClass():Void
+	{
+	}
+	
 	/**
 	 * テストに相互作用が出ないようにテスト毎にスレッドライブラリを初期化。
 	 * 通常であれば、initializeの呼び出しは一度きり。
 	 */
-	private function initialize():Void
+	@Before
+	public function setup():Void
 	{
 		Thread.initialize(new EnterFrameThreadExecutor());
 	}
@@ -39,24 +41,27 @@ class InterruptionTest
 	/**
 	 * 念のため、終了処理もしておく
 	 */
-	private function finalize():Void
+	@After
+	public function tearDown():Void
 	{
 		Thread.initialize(null);
 	}
+	
 	
 	/**
 	 * 割り込みフラグが正しく設定されるか。
 	 * 待機中でない場合は、割り込みハンドラが実行されたり InterruptedError が発生したりすることはない。
 	 * 一度 checkInterrupted を呼び出すと、割り込みフラグがクリアされる。
 	 */
-	private function interrupt():Void
+	@AsyncTest
+	public function interrupt(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var i:InterruptTestThread = new InterruptTestThread();
 		var t:TesterThread = new TesterThread(i);
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run run2 finalize ", Static.log);
 							Assert.isTrue(i.flag1);
@@ -64,81 +69,70 @@ class InterruptionTest
 							Assert.isFalse(i.flag3);
 							Assert.isFalse(i.flag4);
 						}, 1000));
-		
 		t.start();
+		
 	}
 	
 	/**
 	 * スレッドが待機中に割り込み、かつ割り込みハンドラが設定されている場合、割り込みハンドラが実行されるか。
 	 * 割り込みハンドラが実行される場合、割り込みフラグは設定されない。
 	 */
-	private function interruptedHandler():Void
+	@AsyncTest
+	public function interruptedHandler(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var i:InterruptedHandlerTestThread = new InterruptedHandlerTestThread();
 		var t:TesterThread = new TesterThread(i);
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run interrupt interrupted finalize ", Static.log);
 							Assert.isFalse(i.flag);
 						}, 1000));
-		
 		t.start();
+		
 	}
 	
 	/**
 	 * スレッドが待機中に割り込み、かつ割り込みハンドラが設定されていない場合、InterruptedError が発生するか。
 	 * InterruptedError が発生する場合、割り込みフラグは設定されない。
 	 */
-	private function interruptedException():Void
+	@AsyncTest
+	public function interruptedException(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
-		var i:InterruptedExceptionTestThread = new InterruptedExceptionTestThread();
+		var i:InterruptedHandlerTestThread = new InterruptedHandlerTestThread();
 		var t:TesterThread = new TesterThread(i);
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run interrupt interrupted finalize ", Static.log);
 							Assert.isFalse(i.flag);
 						}, 1000));
-		
 		t.start();
+		
 	}
 	
 	/**
 	 * 割り込みハンドラが実行のたびにリセットされているかどうか
 	 */
-	private function clearInterruptedHandler():Void
+	@AsyncTest
+	public function clearInterruptedHandler(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ClearInterruptedHandlerTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run interrupt runInterrupted interrupt runInterrupted2 finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
+		
 	}
-
-	public function new()
-	{
-	}
-}
-
-
-
-class Static
-{
-	public static var log:String;
-
-	public function new()
-	{
-	}
+	
 }
 
 class InterruptTestThread extends Thread
@@ -152,8 +146,8 @@ class InterruptTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		next(run2);
-		interrupted(runInterrupted);
+		Thread.next(run2);
+		Thread.interrupted(runInterrupted);
 		
 		interrupt();
 	}
@@ -163,9 +157,9 @@ class InterruptTestThread extends Thread
 		Static.log += "run2 ";
 		
 		flag1 = isInterrupted;
-		flag2 = checkInterrupted();
+		flag2 = Thread.checkInterrupted();
 		flag3 = isInterrupted;
-		flag4 = checkInterrupted();
+		flag4 = Thread.checkInterrupted();
 	}
 	
 	private function runInterrupted():Void
@@ -192,12 +186,13 @@ class InterruptedHandlerTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		next(run2);
-		interrupted(runInterrupted);
+		Thread.next(run2);
+		Thread.interrupted(runInterrupted);
 		
 		wait();
 		
-		setTimeout(doInterrupt, 100);
+		//setTimeout(doInterrupt, 100);
+		untyped __global__["flash.utils.setTimeout"](doInterrupt, 100);
 	}
 	
 	private function doInterrupt():Void
@@ -216,7 +211,7 @@ class InterruptedHandlerTestThread extends Thread
 	{
 		Static.log += "interrupted ";
 		
-		flag = checkInterrupted();
+		flag = Thread.checkInterrupted();
 	}
 	
 	override private function finalize():Void
@@ -238,12 +233,13 @@ class InterruptedExceptionTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		next(run2);
-		error(InterruptedError, runInterrupted);
+		Thread.next(run2);
+		Thread.error(InterruptedError, runInterrupted);
 		
 		wait();
 		
-		setTimeout(doInterrupt, 100);
+		//setTimeout(doInterrupt, 100);
+		untyped __global__["flash.utils.setTimeout"](doInterrupt, 100);
 	}
 	
 	private function doInterrupt():Void
@@ -262,9 +258,9 @@ class InterruptedExceptionTestThread extends Thread
 	{
 		Static.log += "interrupted ";
 		
-		flag = checkInterrupted();
+		flag = Thread.checkInterrupted();
 		
-		next(null);
+		Thread.next(null);
 	}
 	
 	override private function finalize():Void
@@ -284,10 +280,11 @@ class ClearInterruptedHandlerTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		interrupted(runInterrupted);
+		Thread.interrupted(runInterrupted);
 		wait();
 		
-		setTimeout(doInterrupt, 10);
+		//setTimeout(doInterrupt, 10);
+		untyped __global__["flash.utils.setTimeout"](doInterrupt, 10);
 	}
 	
 	private function doInterrupt():Void
@@ -301,10 +298,11 @@ class ClearInterruptedHandlerTestThread extends Thread
 	{
 		Static.log += "runInterrupted ";
 		
-		error(InterruptedError, runInterrupted2);
+		Thread.error(InterruptedError, runInterrupted2);
 		wait();
 		
-		setTimeout(doInterrupt, 10);
+		//setTimeout(doInterrupt, 10);
+		untyped __global__["flash.utils.setTimeout"](doInterrupt, 10);
 	}
 	
 	private function runInterrupted2(e:Error, t:Thread):Void

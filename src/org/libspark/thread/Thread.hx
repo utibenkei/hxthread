@@ -283,9 +283,11 @@ class Thread extends Monitor
 		var threads:Array<Thread> = _toplevelThreads;
 		var l:Int = threads.length;
 		var i:Int = 0;
+		
 		while (i < l){
 			var thread:Thread = threads[i];
 			if (!thread.execute()) {
+				
 				// スレッドが終了した場合は削除
 				threads.splice(i, 1);
 				--l;
@@ -329,8 +331,10 @@ class Thread extends Monitor
 	 */
 	private static function addToplevelThreads(threads:Array<Thread>):Void
 	{
-		//_toplevlThreads.push(threads);
-		_toplevelThreads.concat(threads);//as3とは違い、pushで配列同士の連結はできない？ので普通にconcatで処理
+		
+		_toplevelThreads = _toplevelThreads.concat(threads);//as3とは違い、pushで配列同士の連結はできないので普通にconcatで処理
+		//TODO ArrayはVectorまたはListに変更したほうが速いかもしれない。
+		
 	}
 	
 	/**
@@ -1144,10 +1148,10 @@ class Thread extends Monitor
 		else {
 			// 子スレッドによる例外が発生していない場合は前回指定された実行関数を設定
 			runHandler = _runHandler;
-		}  // 実行関数をリセット  
+		}
 		
 		
-		
+		// 実行関数をリセット  
 		_runHandler = null;
 		// タイムアウトハンドラをリセット
 		_timeoutHandler = null;

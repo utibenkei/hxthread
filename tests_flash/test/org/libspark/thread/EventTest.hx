@@ -1,35 +1,38 @@
 package org.libspark.thread;
 
-import org.libspark.thread.EnterFrameThreadExecutor;
-import org.libspark.thread.TesterThread;
-
 import flash.events.Event;
-import org.libspark.as3unit.assert.*;
-import org.libspark.as3unit.Before;
-import org.libspark.as3unit.After;
-import org.libspark.as3unit.Test;
-import org.libspark.as3unit.TestExpected;
-
-
-
-
-
-
-
-
 import flash.events.EventDispatcher;
 import flash.events.IEventDispatcher;
-import flash.utils.SetTimeout;
+import massive.munit.Assert;
+import massive.munit.async.AsyncFactory;
+import org.libspark.thread.EnterFrameThreadExecutor;
 import org.libspark.thread.Thread;
-import org.libspark.thread.ThreadState;
+
 
 class EventTest
 {
+	
+	public function new() 
+	{
+		
+	}
+	
+	@BeforeClass
+	public function beforeClass():Void
+	{
+	}
+	
+	@AfterClass
+	public function afterClass():Void
+	{
+	}
+	
 	/**
 	 * テストに相互作用が出ないようにテスト毎にスレッドライブラリを初期化。
 	 * 通常であれば、initializeの呼び出しは一度きり。
 	 */
-	private function initialize():Void
+	@Before
+	public function setup():Void
 	{
 		Thread.initialize(new EnterFrameThreadExecutor());
 	}
@@ -37,10 +40,12 @@ class EventTest
 	/**
 	 * 念のため、終了処理もしておく
 	 */
-	private function finalize():Void
+	@After
+	public function tearDown():Void
 	{
 		Thread.initialize(null);
 	}
+	
 	
 	/**
 	 * イベントハンドラが正しく動作するか。
@@ -49,70 +54,58 @@ class EventTest
 	 * 複数のイベントハンドラが設定されていた場合、最初に起きたイベントのみ有効となる。
 	 * 次の実行関数が実行される際に、イベントハンドラの設定はリセットされる。
 	 */
-	private function event():Void
+	@AsyncTest
+	public function event(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var e:EventTestThread = new EventTestThread();
 		var t:TesterThread = new TesterThread(e);
 		
-		t.addEventListener(Event.COMPLETE, async(function(ev:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(ev:Event):Void
 						{
 							Assert.areEqual("run dispatch hoge finalize ", Static.log);
 							Assert.isNotNull(e.e);
-							assertSame(e.ev.type, e.e.type);
+							Assert.areSame(e.ev.type, e.e.type);
 						}, 1000));
-		
 		t.start();
+		
 	}
+	
+	
 	
 	/**
 	 * 既に wait している状態でもイベントハンドラを仕掛けることが出来るか
 	 */
-	private function waitAndEvent():Void
+	@AsyncTest
+	public function timedJoin(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new WaitAndEventTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(ev:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(ev:Event):Void
 						{
 							Assert.areEqual("run dispatch event finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
 	}
 	
 	/**
 	 * イベントハンドラが設定されている場合でも、 next が設定された場合は待機状態にならずに動作することができるか
 	 */
-	private function nextAndEvent():Void
+	@AsyncTest
+	public function nextAndEvent(factory:AsyncFactory):Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new NextAndEventTestThread());
 		
-		t.addEventListener(Event.COMPLETE, async(function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run run run dispatch event finalize ", Static.log);
 						}, 1000));
-		
 		t.start();
-	}
-
-	public function new()
-	{
-	}
-}
-
-
-
-class Static
-{
-	public static var log:String;
-
-	public function new()
-	{
 	}
 }
 
@@ -126,10 +119,11 @@ class EventTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		event(dispatcher, "hoge", hogeEvent);
-		event(dispatcher, "fuga", fugaEvent);
+		Thread.event(dispatcher, "hoge", hogeEvent);
+		Thread.event(dispatcher, "fuga", fugaEvent);
 		
-		setTimeout(dispatch, 100);
+		//setTimeout(dispatch, 100);
+		untyped __global__["flash.utils.setTimeout"](dispatch, 100);
 	}
 	
 	private function hogeEvent(e:Event):Void
@@ -171,10 +165,11 @@ class WaitAndEventTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		event(_dispatcher, "myEvent", myEventHandler);
+		Thread.event(_dispatcher, "myEvent", myEventHandler);
 		wait();
 		
-		setTimeout(dispatch, 100);
+		//setTimeout(dispatch, 100);
+		untyped __global__["flash.utils.setTimeout"](dispatch, 100);
 	}
 	
 	private function myEventHandler(e:Event):Void
@@ -209,10 +204,11 @@ class NextAndEventTestThread extends Thread
 	{
 		Static.log += "run ";
 		
-		event(_dispatcher, "myEvent", myEventHandler);
-		next(run);
+		Thread.event(_dispatcher, "myEvent", myEventHandler);
+		Thread.next(run);
 		
-		if (++_count == 3) {
+		_count++;
+		if (_count == 3) {
 			new EventFireThread(_dispatcher).start();
 		}
 	}
