@@ -105,9 +105,12 @@ class AuxiliaryTest
 }
 
 
+private class Static
+{
+	public static var log:String;
+}
 
-
-class JoinTestThread extends Thread
+private class JoinTestThread extends Thread
 {
 	public var join1:Bool = false;
 	public var join2:Bool = false;
@@ -139,9 +142,9 @@ class JoinTestThread extends Thread
 	}
 }
 
-class JoinChildThread extends Thread
+private class JoinChildThread extends Thread
 {
-	private var _count:Int = 0;
+	private var _count:UInt = 0;
 	
 	override private function run():Void
 	{
@@ -158,7 +161,7 @@ class JoinChildThread extends Thread
 	}
 }
 
-class TimedJoinTestThread extends Thread
+private class TimedJoinTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -186,10 +189,10 @@ class TimedJoinTestThread extends Thread
 	}
 }
 
-class SleepTestThread extends Thread
+private class SleepTestThread extends Thread
 {
-	public var time:Int = 0;
-	private var _t:Int;
+	public var time:UInt = 0;
+	private var _t:UInt;
 	
 	override private function run():Void
 	{

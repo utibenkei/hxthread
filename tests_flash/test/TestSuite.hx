@@ -6,6 +6,7 @@ import org.libspark.thread.ExceptionTest;
 import org.libspark.thread.InterruptionTest;
 import org.libspark.thread.MonitorTest;
 import org.libspark.thread.TesterThreadTest;
+import org.libspark.thread.ThreadExceptionTest;
 
 /**
  * Auto generated Test Suite for MassiveUnit.
@@ -25,5 +26,6 @@ class TestSuite extends massive.munit.TestSuite
 		add(org.libspark.thread.InterruptionTest);
 		add(org.libspark.thread.MonitorTest);
 		add(org.libspark.thread.TesterThreadTest);
+		add(org.libspark.thread.ThreadExceptionTest);
 	}
 }

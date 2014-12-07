@@ -106,7 +106,7 @@ class InterruptionTest
 	{
 		Static.log = "";
 		
-		var i:InterruptedHandlerTestThread = new InterruptedHandlerTestThread();
+		var i:InterruptedExceptionTestThread = new InterruptedExceptionTestThread();
 		var t:TesterThread = new TesterThread(i);
 		
 		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
@@ -199,7 +199,12 @@ class InterruptionTest
 	
 }
 
-class InterruptTestThread extends Thread
+private class Static
+{
+	public static var log:String;
+}
+
+private class InterruptTestThread extends Thread
 {
 	public var flag1:Bool;
 	public var flag2:Bool;
@@ -242,7 +247,7 @@ class InterruptTestThread extends Thread
 	}
 }
 
-class InterruptedHandlerTestThread extends Thread
+private class InterruptedHandlerTestThread extends Thread
 {
 	public var flag:Bool;
 	
@@ -289,7 +294,7 @@ class InterruptedHandlerTestThread extends Thread
 	}
 }
 
-class InterruptedExceptionTestThread extends Thread
+private class InterruptedExceptionTestThread extends Thread
 {
 	public var flag:Bool;
 	
@@ -338,7 +343,7 @@ class InterruptedExceptionTestThread extends Thread
 	}
 }
 
-class ClearInterruptedHandlerTestThread extends Thread
+private class ClearInterruptedHandlerTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -385,7 +390,7 @@ class ClearInterruptedHandlerTestThread extends Thread
 	}
 }
 
-class EventWaitThread extends Thread
+private class EventWaitThread extends Thread
 {
 	public var dispatcher:IEventDispatcher;
 	
@@ -420,11 +425,11 @@ class EventWaitThread extends Thread
 	}
 }
 
-class InterruptionBeforeEventTestThread extends Thread
+private class InterruptionBeforeEventTestThread extends Thread
 {
 	private var _dispatcher:IEventDispatcher = new EventDispatcher();
 	private var _thread:EventWaitThread;
-	private var _frame:Int = 0;
+	private var _frame:UInt = 0;
 	
 	override private function run():Void
 	{
@@ -465,11 +470,11 @@ class InterruptionBeforeEventTestThread extends Thread
 	}
 }
 
-class InterruptionAfterEventTestThread extends Thread
+private class InterruptionAfterEventTestThread extends Thread
 {
 	private var _dispatcher:IEventDispatcher = new EventDispatcher();
 	private var _thread:EventWaitThread;
-	private var _frame:Int = 0;
+	private var _frame:UInt = 0;
 	
 	override private function run():Void
 	{
@@ -510,11 +515,11 @@ class InterruptionAfterEventTestThread extends Thread
 	}
 }
 
-class ChildInterruptionTestThread extends Thread
+private class ChildInterruptionTestThread extends Thread
 {
 	private var _dispatcher:IEventDispatcher = new EventDispatcher();
 	private var _thread:ParallelExecutor;
-	private var _frame:Int = 0;
+	private var _frame:UInt = 0;
 	
 	override private function run():Void
 	{

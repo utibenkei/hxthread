@@ -1,12 +1,9 @@
 package org.libspark.thread;
 
-import flash.errors.Error;
 import flash.events.Event;
 import massive.munit.Assert;
 import massive.munit.async.AsyncFactory;
-import massive.munit.util.Timer;
 import org.libspark.thread.EnterFrameThreadExecutor;
-import org.libspark.thread.errors.InterruptedError;
 import org.libspark.thread.Thread;
 
 
@@ -239,7 +236,12 @@ class MonitorTest
 	
 }
 
-class NotifyTestThread extends Thread
+private class Static
+{
+	public static var log:String;
+}
+
+private class NotifyTestThread extends Thread
 {
 	private var _monitor:IMonitor;
 	
@@ -290,7 +292,7 @@ class NotifyTestThread extends Thread
 	}
 }
 
-class NotifyAllTestThread extends Thread
+private class NotifyAllTestThread extends Thread
 {
 	private var _monitor:IMonitor;
 	
@@ -333,11 +335,11 @@ class NotifyAllTestThread extends Thread
 	}
 }
 
-class StateTestThread extends Thread
+private private class StateTestThread extends Thread
 {
 	public var thread:Thread;
-	public var state1:Int = ThreadState.NEW;
-	public var state2:Int = ThreadState.NEW;
+	public var state1:UInt = ThreadState.NEW;
+	public var state2:UInt = ThreadState.NEW;
 	
 	private var _monitor:IMonitor;
 	
@@ -379,7 +381,7 @@ class StateTestThread extends Thread
 	}
 }
 
-class WaitThread extends Thread
+private private class WaitThread extends Thread
 {
 	public function new(monitor:IMonitor)
 	{
@@ -409,7 +411,7 @@ class WaitThread extends Thread
 	}
 }
 
-class TimeoutTestThread extends Thread
+private class TimeoutTestThread extends Thread
 {
 	public var thread:TimedWaitThread;
 	
@@ -460,11 +462,11 @@ class TimeoutTestThread extends Thread
 	}
 }
 
-class TimedStateTestThread extends Thread
+private class TimedStateTestThread extends Thread
 {
 	public var thread:TimedWaitThread;
-	public var state1:Int;
-	public var state2:Int;
+	public var state1:UInt;
+	public var state2:UInt;
 	
 	private var _monitor:IMonitor;
 	
@@ -510,7 +512,7 @@ class TimedStateTestThread extends Thread
 	}
 }
 
-class TimedWaitThread extends Thread
+private class TimedWaitThread extends Thread
 {
 	public function new(monitor:IMonitor)
 	{
@@ -556,7 +558,7 @@ class TimedWaitThread extends Thread
 	}
 }
 
-class WaitFinalizeTestThread extends Thread
+private class WaitFinalizeTestThread extends Thread
 {
 	private var _monitor:IMonitor = new Monitor();
 	
@@ -588,7 +590,7 @@ class WaitFinalizeTestThread extends Thread
 	}
 }
 
-class TimeoutFinaizeTestThread extends Thread
+private class TimeoutFinaizeTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -608,7 +610,7 @@ class TimeoutFinaizeTestThread extends Thread
 	}
 }
 
-class FinalizeWaitTestThread extends Thread
+private class FinalizeWaitTestThread extends Thread
 {
 	private var _monitor:IMonitor = new Monitor();
 	
@@ -635,7 +637,7 @@ class FinalizeWaitTestThread extends Thread
 	}
 }
 
-class FinalizeTimeoutTestThread extends Thread
+private class FinalizeTimeoutTestThread extends Thread
 {
 	override private function finalize():Void
 	{
@@ -650,7 +652,7 @@ class FinalizeTimeoutTestThread extends Thread
 	}
 }
 
-class FinalizeTimeoutHandlerTestThread extends Thread
+private class FinalizeTimeoutHandlerTestThread extends Thread
 {
 	override private function finalize():Void
 	{

@@ -359,9 +359,12 @@ class ExceptionTest
 	
 }
 
+private class Static
+{
+	public static var log:String;
+}
 
-
-class ExceptionTestThread extends Thread
+private class ExceptionTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -388,7 +391,7 @@ class ExceptionTestThread extends Thread
 	}
 }
 
-class UncaughtExceptionTestThread extends Thread
+private class UncaughtExceptionTestThread extends Thread
 {
 	public var ex:Error = new Error();
 	
@@ -403,7 +406,7 @@ class UncaughtExceptionTestThread extends Thread
 	}
 }
 
-class ExceptionWithHandlerTestThread extends Thread
+private class ExceptionWithHandlerTestThread extends Thread
 {
 	public var ex:Error = new Error();
 	public var e:Error;
@@ -443,7 +446,7 @@ class ExceptionWithHandlerTestThread extends Thread
 	}
 }
 
-class ExceptionHandlerSelectTestThread extends Thread
+private class ExceptionHandlerSelectTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -515,7 +518,7 @@ class ExceptionHandlerSelectTestThread extends Thread
 	}
 }
 
-class ExceptionRecoveryTestThread extends Thread
+private class ExceptionRecoveryTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -555,7 +558,7 @@ class ExceptionRecoveryTestThread extends Thread
 	}
 }
 
-class ExceptionHandlerResetTestThread extends Thread
+private class ExceptionHandlerResetTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -588,7 +591,7 @@ class ExceptionHandlerResetTestThread extends Thread
 	}
 }
 
-class ExceptionHandlerNoResetTestThread extends Thread
+private class ExceptionHandlerNoResetTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -621,7 +624,7 @@ class ExceptionHandlerNoResetTestThread extends Thread
 	}
 }
 
-class ExceptionInFinalizeTestThread extends Thread
+private class ExceptionInFinalizeTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -656,7 +659,7 @@ class ExceptionInFinalizeTestThread extends Thread
 	}
 }
 
-class ExceptionInFinalizeTestChildThread extends Thread
+private class ExceptionInFinalizeTestChildThread extends Thread
 {
 	override private function finalize():Void
 	{
@@ -671,7 +674,7 @@ class ExceptionInFinalizeTestChildThread extends Thread
 	}
 }
 
-class ExceptionInFinalizeWithHandlerTestThread extends Thread
+private class ExceptionInFinalizeWithHandlerTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -715,7 +718,7 @@ class ExceptionInFinalizeWithHandlerTestThread extends Thread
 	}
 }
 
-class ExceptionInFinalizeWithHandlerTestChildThread extends Thread
+private class ExceptionInFinalizeWithHandlerTestChildThread extends Thread
 {
 	override private function finalize():Void
 	{
@@ -737,7 +740,7 @@ class ExceptionInFinalizeWithHandlerTestChildThread extends Thread
 	}
 }
 
-class ExceptionInHandlerTestThread extends Thread
+private class ExceptionInHandlerTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -767,7 +770,7 @@ class ExceptionInHandlerTestThread extends Thread
 	}
 }
 
-class ExceptionInHandlerTestChildThread extends Thread
+private class ExceptionInHandlerTestChildThread extends Thread
 {
 	override private function run():Void
 	{
@@ -791,7 +794,7 @@ class ExceptionInHandlerTestChildThread extends Thread
 	}
 }
 
-class ChildExceptionTestThread extends Thread
+private class ChildExceptionTestThread extends Thread
 {
 	public var child:ChildExceptionTestChildThread = new ChildExceptionTestChildThread();
 	public var e:Error;
@@ -825,7 +828,7 @@ class ChildExceptionTestThread extends Thread
 	}
 }
 
-class ChildExceptionTestChildThread extends Thread
+private class ChildExceptionTestChildThread extends Thread
 {
 	public var ex:Error = new Error();
 	
@@ -847,7 +850,7 @@ class ChildExceptionTestChildThread extends Thread
 	}
 }
 
-class ChildExceptionWhileWaitingTestThread extends Thread
+private class ChildExceptionWhileWaitingTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -875,7 +878,7 @@ class ChildExceptionWhileWaitingTestThread extends Thread
 	}
 }
 
-class ChildExceptionWhileWaitingTestChildThread extends Thread
+private class ChildExceptionWhileWaitingTestChildThread extends Thread
 {
 	public var ex:Error = new Error();
 	
@@ -904,7 +907,7 @@ class ChildExceptionWhileWaitingTestChildThread extends Thread
 	}
 }
 
-class ChildExceptionHandlerTestThread extends Thread
+private class ChildExceptionHandlerTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -937,7 +940,7 @@ class ChildExceptionHandlerTestThread extends Thread
 	}
 }
 
-class ChildExceptionHandlerTestChildThread extends Thread
+private class ChildExceptionHandlerTestChildThread extends Thread
 {
 	override private function run():Void
 	{
@@ -964,7 +967,7 @@ class ChildExceptionHandlerTestChildThread extends Thread
 	}
 }
 
-class GrandchildExceptionTestThread extends Thread
+private class GrandchildExceptionTestThread extends Thread
 {
 	override private function run():Void
 	{
@@ -1001,7 +1004,7 @@ class GrandchildExceptionTestThread extends Thread
 	}
 }
 
-class GrandchildExceptionTestChildThread extends Thread
+private class GrandchildExceptionTestChildThread extends Thread
 {
 	override private function run():Void
 	{
@@ -1030,7 +1033,7 @@ class GrandchildExceptionTestChildThread extends Thread
 	}
 }
 
-class GrandchildExceptionTestGrandchildThread extends Thread
+private class GrandchildExceptionTestGrandchildThread extends Thread
 {
 	override private function run():Void
 	{
@@ -1057,7 +1060,7 @@ class GrandchildExceptionTestGrandchildThread extends Thread
 	}
 }
 
-class DefaultErrorHandlerTestThread extends Thread
+private class DefaultErrorHandlerTestThread extends Thread
 {
     public var ex:Error = new Error();
     
@@ -1072,7 +1075,7 @@ class DefaultErrorHandlerTestThread extends Thread
     }
 }
 
-class AutoTerminationTestThread extends Thread
+private class AutoTerminationTestThread extends Thread
 {
     override private function run():Void
     {

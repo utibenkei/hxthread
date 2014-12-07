@@ -109,7 +109,12 @@ class EventTest
 	}
 }
 
-class EventTestThread extends Thread
+private class Static
+{
+	public static var log:String;
+}
+
+private class EventTestThread extends Thread
 {
 	public var dispatcher:IEventDispatcher = new EventDispatcher();
 	public var ev:Event = new Event("hoge");
@@ -157,7 +162,7 @@ class EventTestThread extends Thread
 	}
 }
 
-class WaitAndEventTestThread extends Thread
+private class WaitAndEventTestThread extends Thread
 {
 	private var _dispatcher:IEventDispatcher = new EventDispatcher();
 	
@@ -195,10 +200,10 @@ class WaitAndEventTestThread extends Thread
 	}
 }
 
-class NextAndEventTestThread extends Thread
+private class NextAndEventTestThread extends Thread
 {
 	private var _dispatcher:IEventDispatcher = new EventDispatcher();
-	private var _count:Int = 0;
+	private var _count:UInt = 0;
 	
 	override private function run():Void
 	{
@@ -229,7 +234,7 @@ class NextAndEventTestThread extends Thread
 	}
 }
 
-class EventFireThread extends Thread
+private class EventFireThread extends Thread
 {
 	public function new(dispatcher:IEventDispatcher)
 	{
