@@ -24,82 +24,51 @@
  * THE SOFTWARE.
  * 
  */
-package org.libspark.thread.threads.frocessing;
+package org.libspark.thread.threads.utils;
 
 
-import flash.display.Graphics;
-import frocessing.core.F5Graphics;
-import frocessing.core.F5Graphics3D;
+import flash.events.TimerEvent;
+import flash.utils.Timer;
 import org.libspark.thread.Thread;
 
-/**
- * Forcessing を実行するためのスレッドです.
- * 
- * <p>描画には F5Graphics3D クラスが使用されます。</p>
- * 
- * @author	utibenkei
- */
-class Frocessing3DThread extends Thread
+class WaitThread extends Thread
 {
-	private var fg(get, never):F5Graphics3D;
-
+	private var _timer:Timer;
+	
 	/**
-	 * 新しい Frocessing3DThread クラスのインスタンスを作成します.
-	 * 
-	 * @param	target	描画先となる Graphics
+	 * 新しい WaitThread インスタンスを作成します.
+	 *
+	 * @param time 待機したいミリ秒です.
 	 */
-	public function new(target:Graphics)
+	public function new(time:Int)
 	{
 		super();
-		_fg = new F5Graphics3D(target, 100, 100);
+		_timer = new Timer(time, 1);
 	}
 	
-	private var _fg:F5Graphics3D;
-	
-	/**
-	 * 描画をするための F5Graphics3D
-	 */
-	private function get_fg():F5Graphics3D
-	{
-		return _fg;
-	}
-	
-	/**
-	 * @private
-	 */
 	override private function run():Void
 	{
-		setup();
-		doDraw();
+		Thread.event(_timer, TimerEvent.TIMER_COMPLETE, completeHandler);
+		Thread.interrupted(interruptedHandler);
+		_timer.start();
 	}
 	
-	/**
-	 * @private
-	 */
-	private function doDraw():Void
+	override private function finalize():Void
 	{
-		fg.beginDraw();
-		draw();
-		fg.endDraw();
-		
-		Thread.next(doDraw);
+		_timer = null;
 	}
 	
-	/**
-	 * このメソッドをオーバーライドして初期化処理を記述します.
-	 */
-	private function setup():Void
+	private function completeHandler(e:TimerEvent):Void
 	{
-		
+		// do nothing.
 		
 	}
 	
-	/**
-	 * このメソッドをオーバーライドして描画処理を記述します.
-	 */
-	private function draw():Void
+	private function interruptedHandler():Void
 	{
-		
-		
+		if (_timer.running) {
+			_timer.stop();
+		}
 	}
 }
+

@@ -1,6 +1,10 @@
 import massive.munit.TestSuite;
 
+import org.libspark.thread.AuxiliaryTest;
+import org.libspark.thread.EventTest;
 import org.libspark.thread.ExceptionTest;
+import org.libspark.thread.InterruptionTest;
+import org.libspark.thread.MonitorTest;
 import org.libspark.thread.TesterThreadTest;
 
 /**
@@ -15,7 +19,11 @@ class TestSuite extends massive.munit.TestSuite
 	{
 		super();
 
+		add(org.libspark.thread.AuxiliaryTest);
+		add(org.libspark.thread.EventTest);
 		add(org.libspark.thread.ExceptionTest);
+		add(org.libspark.thread.InterruptionTest);
+		add(org.libspark.thread.MonitorTest);
 		add(org.libspark.thread.TesterThreadTest);
 	}
 }

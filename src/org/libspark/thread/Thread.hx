@@ -149,6 +149,7 @@ class Thread extends Monitor
 	private static var _currentThread:Thread = null;
 	private static var _toplevelThreads:Array<Thread> = [];
 	private static var _uncaughtErrorHandler:Function = null;
+	private static var _defaultErrorHandlers:Map<String, ErrorHandler> = null;
 	
 	/**
  * スレッドライブラリを初期化します.
@@ -257,19 +258,84 @@ class Thread extends Monitor
 	 */
 	private static function getUncaughtErrorHandler():Function
 	{
-		return (uncaughtErrorHandler != null) ? uncaughtErrorHandler:defaultUncaughtErrorHandler;
+		return (uncaughtErrorHandler != null) ? uncaughtErrorHandler : defaultErrorHandler;
 	}
 	
 	/**
 	 * 例外ハンドラのデフォルトの実装です.
 	 * 
+	 * <p>このハンドラでは、例外の内容及び発生元の Thread の文字列表現を出力します。</p>
+	 * 
 	 * @param	e	発生した例外
 	 * @param	t	例外が発生したスレッド
+	 */
+	public static function defaultErrorHandler(e:Dynamic, t:Thread):Void
+	{
+		trace(((t != null) ? Std.string(t) + " ":"") + ((Std.is(e, Error)) ? cast(e, Error).getStackTrace() : Std.string(e)));
+	}
+	
+	/**
+	 * 現在実行中のスレッドおよびその子スレッドで例外が発生した場合で、error メソッドによるハンドラの指定がなされていない場合にデフォルトで実行する実行関数を設定します.
+	 * 
+	 * <p>ここで設定される実行関数は、発生した例外である Object と、例外が発生したスレッドである Thread のふたつの引数をとる関数である必要があります。</p>
+	 * 
+	 * <p>この関数によって例外を処理できた (この関数内で再び例外が発生しなかった) 場合で、この関数内で
+	 * next メソッドによる実行関数の設定が行われなかった場合、例外が発生する前の実行関数の設定を復元します。</p>
+	 * 
+	 * @param	klass	どの型の例外が発生した場合に関数を実行するかを示すクラス
+	 * @param	func	例外が発生した際に実行される実行関数
+	 * @param	autoTermination	実行関数の実行後、Thread#next(null) を自動的に呼び出すのであれば true, そうでなければ false
+	 */
+	public static function registerDefaultErrorHandler(klass:Class<Dynamic>, func:Function, autoTermination:Bool = false):Void
+	{
+		if (func != null) {
+			addDefaultErrorHandler(klass, func, autoTermination);
+		}
+		else {
+			removeDefaultErrorHandler(klass);
+		}
+	}
+	
+	/**
+	 * デフォルトエラーハンドラマップを返します.
+	 * 
+	* @return	デフォルトエラーハンドラマップ
 	 * @private
 	 */
-	private static function defaultUncaughtErrorHandler(e:Dynamic, t:Thread):Void
+	private static function getDefaultErrorHandlers():Map<String, ErrorHandler>
 	{
-		trace(((t != null) ? Std.string(t) + " ":"") + ((Std.is(e, Error)) ? cast(e, Error).getStackTrace():Std.string(e)));
+		return (_defaultErrorHandlers != null) ? _defaultErrorHandlers : (_defaultErrorHandlers = new Map());
+	}
+	
+	/**
+	 * デフォルトエラーハンドラをデフォルトエラーハンドラマップに追加します.
+	 * 
+	 * @param	klass	エラークラス
+	 * @param	handler	エラーハンドラ
+	 * @param	reset	リセットするか
+	 * @param	autoTermination	自動で next(null) を呼び出すか
+	 * @private
+	 */
+	private static function addDefaultErrorHandler(klass:Class<Dynamic>, handler:Function, autoTermination:Bool):Void
+	{
+		getDefaultErrorHandlers()[Type.getClassName(klass)] = new ErrorHandler(handler, false, autoTermination);
+	}
+	
+	/**
+	 * デフォルトエラーハンドラをデフォルトエラーハンドラマップから削除します.
+	 * 
+	 * @param	klass	エラークラス
+	 * @private
+	 */
+	private static function removeDefaultErrorHandler(klass:Class<Dynamic>):Void
+	{
+		// ハンドラマップが存在しなければ何もしない
+		if (_defaultErrorHandlers == null) {
+			return;
+		}
+		
+		// ハンドラマップから削除
+		_defaultErrorHandlers.remove(Type.getClassName(klass));
 	}
 	
 	/**
@@ -304,7 +370,7 @@ class Thread extends Monitor
 					Reflect.callMethod(Thread, getUncaughtErrorHandler(), [thread._error, thread._errorThread]);
 				}
 				catch (e:Dynamic) {
-					defaultUncaughtErrorHandler(e, null);
+					defaultErrorHandler(e, null);
 				}
 				thread._error = null;
 				thread._errorThread = null;
@@ -364,11 +430,12 @@ class Thread extends Monitor
 	 * @param	klass	どの型の例外が発生した場合に関数を実行するかを示すクラス
 	 * @param	func	例外が発生した際に実行される実行関数
 	 * @param	reset	次の実行のタイミングでこの設定を削除する場合には true、そうでなければ false
+	 * @param	autoTermination	実行関数の実行後、Thread#next(null) を自動的に呼び出すのであれば true, そうでなければ false
 	 */
-	public static function error(klass:Class<Dynamic>, func:Function, reset:Bool = true):Void
+	public static function error(klass:Class<Dynamic>, func:Function, reset:Bool = true, autoTermination:Bool = false):Void
 	{
 		if (func != null) {
-			getCurrentThread().addErrorHandler(klass, func, reset);
+			getCurrentThread().addErrorHandler(klass, func, reset, autoTermination);
 		}
 		else {
 			getCurrentThread().removeErrorHandler(klass);
@@ -774,9 +841,23 @@ class Thread extends Monitor
 			_waitMonitor = null;
 			// state を切り替える
 			_state = _runningState;
-			// 割り込みハンドラがあれば実行関数を割り込みハンドラに設定
+			
+			// 割り込みハンドラがあれば
 			if (_interruptedHandler != null) {
+				
+				// 実行関数を割り込みハンドラに設定
 				_runHandler = _interruptedHandler;
+				
+				// 入れ子になる場合があるのでカレントスレッドを保存
+				var current:Thread = _currentThread;
+				
+				try{
+					// そしてすぐ実行してみる
+					internalExecute(null, this);
+				}
+				// カレントスレッドを復元
+				_currentThread = current;
+				
 			}
 			else {
 				// 割り込みハンドラがなければ例外を発生
@@ -828,11 +909,12 @@ class Thread extends Monitor
 	 * @param	klass	エラークラス
 	 * @param	handler	エラーハンドラ
 	 * @param	reset	リセットするか
+	 * @param	autoTermination	自動で next(null) を呼び出すか
 	 * @private
 	 */
-	private function addErrorHandler(klass:Class<Dynamic>, handler:Function, reset:Bool):Void
+	private function addErrorHandler(klass:Class<Dynamic>, handler:Function, reset:Bool, autoTermination:Bool):Void
 	{
-		getErrorHandlers()[Type.getClassName(klass)] = new ErrorHandler(handler, reset);
+		getErrorHandlers()[Type.getClassName(klass)] = new ErrorHandler(handler, reset, autoTermination);
 	}
 	
 	/**
@@ -876,14 +958,34 @@ class Thread extends Monitor
 	/**
 	 * 指定されたエラーに該当するエラーハンドラを返します.
 	 * 
+	 * <p>エラーハンドラが見つからず、デフォルトのエラーハンドラが登録されている場合、それを返します。</p>
+	 * 
 	 * @param	error	エラー
 	 * @return	該当するエラーハンドラ。無ければ null
 	 * @private
 	 */
 	private function getErrorHandler(error:Dynamic):ErrorHandler
 	{
+		// まずスレッド自身に登録されているエラーハンドラを検索
+		var handler:ErrorHandler = getErrorHandlerFrom(error, _errorHandlers);
+		// 見つからなければ、デフォルトのエラーハンドラを検索
+		if (handler == null) {
+			handler = getErrorHandlerFrom(error, _defaultErrorHandlers);
+		}
+		return handler;
+	}
+	
+	/**
+	 * 指定されたエラーに該当するエラーハンドラを指定されたハンドラマップから返します.
+	 * 
+	 * @param	error	エラー
+	 * @param	handlers	ハンドラの検索先となるハンドラマップ
+	 * @return	該当するエラーハンドラ。無ければ null
+	 */
+	private function getErrorHandlerFrom(error:Dynamic, handlers:Map<String, ErrorHandler>):ErrorHandler
+	{
 		// ハンドラマップが存在しなければ null を返す
-		if (_errorHandlers == null) {
+		if (handlers == null) {
 			return null;
 		}
 		
@@ -893,7 +995,7 @@ class Thread extends Monitor
 		// クラス名が取得できる限り回す
 		while (className != null){
 			// ハンドラマップからクラス名をキーにしてハンドラを検索する
-			var handler:ErrorHandler = _errorHandlers.get(className);
+			var handler:ErrorHandler = handlers.get(className);
 			// 見つかればそれを返す
 			if (handler != null) {
 				return handler;
@@ -1180,6 +1282,10 @@ class Thread extends Monitor
 				if (errorHandler != null) {
 					// エラーハンドラである場合は例外と例外の発生元のスレッドを引数として渡す
 					Reflect.callMethod(this, runHandler, [error, errorThread]);
+					// 自動終了が求められていれば next(null) を呼び出す
+					if (errorHandler.autoTermination) {
+						next(null);
+					}
 				}
 				else if (_event != null) {
 					var ev:Event = _event;
@@ -1359,57 +1465,5 @@ class Thread extends Monitor
 	public function toString():String
 	{
 		return formatName(name);
-	}
-}
-
-
-
-class ErrorHandler
-{
-	public function new(handler:Function, reset:Bool)
-	{
-		this.handler = handler;
-		this.reset = reset;
-	}
-	
-	public var handler:Function;
-	public var reset:Bool;
-}
-
-class EventHandler
-{
-	public function new(dispatcher:IEventDispatcher, type:String, listener:Function, func:Function, useCapture:Bool, priority:Int, useWeakReference:Bool)
-	{
-		this.dispatcher = dispatcher;
-		this.type = type;
-		this.listener = listener;
-		this.func = func;
-		this.useCapture = useCapture;
-		this.priority = priority;
-		this.useWeakReference = useWeakReference;
-	}
-	
-	public var dispatcher:IEventDispatcher;
-	public var type:String;
-	public var listener:Function;
-	public var func:Function;
-	public var useCapture:Bool;
-	public var priority:Int;
-	public var useWeakReference:Bool;
-	
-	public function register():Void
-	{
-		dispatcher.addEventListener(type, handler, useCapture, priority, useWeakReference);
-	}
-	
-	public function unregister():Void
-	{
-		dispatcher.removeEventListener(type, handler, useCapture);
-	}
-	
-	private function handler(e:Event):Void
-	{
-		//listener(e, this);
-		Reflect.callMethod(this, listener, [e, this]);
 	}
 }

@@ -1,7 +1,11 @@
-/tests
 /tests_flash/.temp
 /tests_flash/old
 /tests_flash/build
 /tests_flash/report
-/samples/autoShowHide/*.swf
 *.swf
+/samples_flash/flickrsphere
+/samples_flash/frocessing
+/samples_flash/progression
+/samples_flash/libs/*.swc
+/samples_flash/tweenAndEvent1
+/samples_flash/tweenAndEvent2

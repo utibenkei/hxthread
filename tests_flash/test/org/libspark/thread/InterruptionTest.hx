@@ -2,12 +2,15 @@ package org.libspark.thread;
 
 import flash.errors.Error;
 import flash.events.Event;
+import flash.events.EventDispatcher;
+import flash.events.IEventDispatcher;
 import massive.munit.Assert;
 import massive.munit.async.AsyncFactory;
 import massive.munit.util.Timer;
 import org.libspark.thread.EnterFrameThreadExecutor;
 import org.libspark.thread.errors.InterruptedError;
 import org.libspark.thread.Thread;
+import org.libspark.thread.utils.ParallelExecutor;
 
 
 class InterruptionTest
@@ -128,6 +131,67 @@ class InterruptionTest
 		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("run interrupt runInterrupted interrupt runInterrupted2 finalize ", Static.log);
+						}, 1000));
+		t.start();
+		
+	}
+	
+	/**
+	 * イベントの発生前に割り込みを掛けた場合に割り込みハンドラが実行され、その後のイベントを受け取らないかどうか
+	 * 
+	 * @see http://www.libspark.org/ticket/117
+	 */
+	@AsyncTest
+	public function interruptionBeforeEvent(factory:AsyncFactory):Void
+	{
+		Static.log = "";
+		
+		var t:TesterThread = new TesterThread(new InterruptionBeforeEventTestThread());
+		
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+						{
+							Assert.areEqual("run EventWait::run interrupt EventWait::eventInterrupted dispatch EventWait::finalize dispatch2 finalize ", Static.log);
+						}, 1000));
+		t.start();
+		
+	}
+	
+	/**
+	 * イベントの発生後に割り込みを掛けた場合に割り込みハンドラが実行されるかどうか
+	 * 
+	 * @see http://www.libspark.org/ticket/117
+	 */
+	@AsyncTest
+	public function interruptionAfterEvent(factory:AsyncFactory):Void
+	{
+		Static.log = "";
+		
+		var t:TesterThread = new TesterThread(new InterruptionAfterEventTestThread());
+		
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+						{
+							Assert.areEqual("run EventWait::run dispatch EventWait::eventHandler EventWait::run interrupt EventWait::eventInterrupted EventWait::finalize dispatch2 finalize ", Static.log);
+						}, 1000));
+		t.start();
+		
+	}
+	
+	/**
+	 * 親子関係のあるスレッドの親スレッドに割り込んだ際に子スレッドの割り込みが実行され、その後のイベントを受け取らないかどうか
+	 * 
+	 * @see http://www.libspark.org/ticket/117
+	 * @see http://www.libspark.org/ticket/104
+	 */
+	@AsyncTest
+	public function childInterruption(factory:AsyncFactory):Void
+	{
+		Static.log = "";
+		
+		var t:TesterThread = new TesterThread(new ChildInterruptionTestThread());
+		
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+						{
+							Assert.areEqual("run EventWait::run EventWait::run interrupt EventWait::eventInterrupted EventWait::eventInterrupted dispatch EventWait::finalize EventWait::finalize dispatch2 finalize ", Static.log);
 						}, 1000));
 		t.start();
 		
@@ -315,6 +379,186 @@ class ClearInterruptedHandlerTestThread extends Thread
 		Static.log += "finalize ";
 	}
 
+	public function new()
+	{
+		super();
+	}
+}
+
+class EventWaitThread extends Thread
+{
+	public var dispatcher:IEventDispatcher;
+	
+	override private function run():Void
+	{
+		Static.log += "EventWait::run ";
+		
+		Thread.event(dispatcher, "event", test_eventHandler);
+		Thread.interrupted(eventInterrupted);
+	}
+	
+	private function test_eventHandler(e:Event):Void
+	{
+		Static.log += "EventWait::eventHandler ";
+		
+		run();
+	}
+	
+	private function eventInterrupted():Void
+	{
+		Static.log += "EventWait::eventInterrupted ";
+	}
+	
+	override private function finalize():Void
+	{
+		Static.log += "EventWait::finalize ";
+	}
+	
+	public function new()
+	{
+		super();
+	}
+}
+
+class InterruptionBeforeEventTestThread extends Thread
+{
+	private var _dispatcher:IEventDispatcher = new EventDispatcher();
+	private var _thread:EventWaitThread;
+	private var _frame:Int = 0;
+	
+	override private function run():Void
+	{
+		Static.log += "run ";
+		
+		_thread = new EventWaitThread();
+		_thread.dispatcher = _dispatcher;
+		_thread.start();
+		
+		Thread.next(process);
+	}
+	
+	private function process():Void
+	{
+		_frame++;
+		
+		if (_frame == 1) {
+			Static.log += "interrupt ";
+			_thread.interrupt();
+			Static.log += "dispatch ";
+			_dispatcher.dispatchEvent(new Event("event"));
+			Thread.next(process);
+		}
+		if (_frame == 2) {
+			Static.log += "dispatch2 ";
+			_dispatcher.dispatchEvent(new Event("event"));
+		}
+	}
+	
+	override private function finalize():Void
+	{
+		Static.log += "finalize ";
+	}
+	
+	public function new()
+	{
+		super();
+	}
+}
+
+class InterruptionAfterEventTestThread extends Thread
+{
+	private var _dispatcher:IEventDispatcher = new EventDispatcher();
+	private var _thread:EventWaitThread;
+	private var _frame:Int = 0;
+	
+	override private function run():Void
+	{
+		Static.log += "run ";
+		
+		_thread = new EventWaitThread();
+		_thread.dispatcher = _dispatcher;
+		_thread.start();
+		
+		Thread.next(process);
+	}
+	
+	private function process():Void
+	{
+		_frame++;
+		
+		if (_frame == 1) {
+			Static.log += "dispatch ";
+			_dispatcher.dispatchEvent(new Event("event"));
+			Static.log += "interrupt ";
+			_thread.interrupt();
+			Thread.next(process);
+		}
+		if (_frame == 2) {
+			Static.log += "dispatch2 ";
+			_dispatcher.dispatchEvent(new Event("event"));
+		}
+	}
+	
+	override private function finalize():Void
+	{
+		Static.log += "finalize ";
+	}
+	
+	public function new()
+	{
+		super();
+	}
+}
+
+class ChildInterruptionTestThread extends Thread
+{
+	private var _dispatcher:IEventDispatcher = new EventDispatcher();
+	private var _thread:ParallelExecutor;
+	private var _frame:Int = 0;
+	
+	override private function run():Void
+	{
+		Static.log += "run ";
+		
+		var t1:EventWaitThread = new EventWaitThread();
+		t1.dispatcher = _dispatcher;
+		
+		var t2:EventWaitThread = new EventWaitThread();
+		t2.dispatcher = _dispatcher;
+		
+		_thread = new ParallelExecutor();
+		_thread.addThread(t1);
+		_thread.addThread(t2);
+		_thread.start();
+		
+		Thread.next(process);
+	}
+	
+	private function process():Void
+	{
+		_frame++;
+		
+		if (_frame == 1) {
+			Thread.next(process);
+		}
+		if (_frame == 2) {
+			Static.log += "interrupt ";
+			_thread.interrupt();
+			Static.log += "dispatch ";
+			_dispatcher.dispatchEvent(new Event("event"));
+			Thread.next(process);
+		}
+		if (_frame == 3) {
+			Static.log += "dispatch2 ";
+			_dispatcher.dispatchEvent(new Event("event"));
+		}
+	}
+	
+	override private function finalize():Void
+	{
+		Static.log += "finalize ";
+	}
+	
 	public function new()
 	{
 		super();

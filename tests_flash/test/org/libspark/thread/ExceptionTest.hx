@@ -3,9 +3,9 @@ package org.libspark.thread;
 import flash.errors.ArgumentError;
 import flash.errors.Error;
 import flash.events.Event;
+import flash.utils.Function;
 import massive.munit.Assert;
 import massive.munit.async.AsyncFactory;
-import massive.munit.util.Timer;
 import org.libspark.thread.EnterFrameThreadExecutor;
 import org.libspark.thread.Thread;
 
@@ -302,6 +302,57 @@ class ExceptionTest
 		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
 						{
 							Assert.areEqual("p.run c.run p.run2 g.run c.run2 p.run2 g.run2 c.finalize p.error p.finalize g.finalize ", Static.log);
+						}, 1000));
+		t.start();
+	}
+	
+	/**
+	 * デフォルトの例外ハンドラが設定されている場合に、それを実行することが出来るか。
+	 */
+	@AsyncTest
+	public function defaultErrorHandler(factory:AsyncFactory):Void
+	{
+		Static.log = "";
+		
+		var d:DefaultErrorHandlerTestThread = new DefaultErrorHandlerTestThread();
+		var t:TesterThread = new TesterThread(d, false);
+		var e:Dynamic;
+		var th:Thread;
+		
+		
+		var handler:Function = function(ee:Dynamic, tt:Thread):Void
+		{
+			e = ee;
+			th = tt;
+			
+			Thread.next(null);
+		};
+		
+		Thread.registerDefaultErrorHandler(Error, handler);
+		
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(ev:Event):Void
+						{
+							Thread.registerDefaultErrorHandler(Error, null);
+							
+							Assert.areSame(d.ex, e);
+							Assert.areSame(d, th);
+						}, 1000));
+		t.start();
+	}
+	
+	/**
+	 * autoTermination = true の場合、エラーハンドラの実行後に next(null) が自動で呼び出されるか。
+	 */
+	@AsyncTest
+	public function autoTermination(factory:AsyncFactory):Void
+	{
+		Static.log = "";
+		
+		var t:TesterThread = new TesterThread(new AutoTerminationTestThread());
+		
+		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+						{
+							Assert.areEqual("run errorHandler finalize ", Static.log);
 						}, 1000));
 		t.start();
 	}
@@ -1004,4 +1055,54 @@ class GrandchildExceptionTestGrandchildThread extends Thread
 	{
 		super();
 	}
+}
+
+class DefaultErrorHandlerTestThread extends Thread
+{
+    public var ex:Error = new Error();
+    
+    override private function run():Void
+    {
+        throw ex;
+    }
+
+    public function new()
+    {
+        super();
+    }
+}
+
+class AutoTerminationTestThread extends Thread
+{
+    override private function run():Void
+    {
+        Static.log += "run ";
+        
+        Thread.next(run2);
+        Thread.error(Error, errorHandler, true, true);
+        
+        throw new Error();
+    }
+    
+    private function run2():Void
+    {
+        Static.log += "run2 ";
+    }
+    
+    private function errorHandler(e:Error, t:Thread):Void
+    {
+        Static.log += "errorHandler ";
+        
+        Thread.next(run2);
+    }
+    
+    override private function finalize():Void
+    {
+        Static.log += "finalize ";
+    }
+
+    public function new()
+    {
+        super();
+    }
 }

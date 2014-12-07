@@ -43,7 +43,7 @@ import org.libspark.thread.Thread;
  * <p>スペシャルプロパティとして、以下のプロパティが拡張されています。</p>
  * <ul>
  * <li>show: true にすると、トゥイーン開始時に visible プロパティを true にします</li>
- * <li>hide: true にすると、トゥイーン開始時に visible プロパティを false にします</li>
+ * <li>hide: true にすると、トゥイーン終了時に visible プロパティを false にします</li>
  * </ul>
  * 
  * @author	utibenkei
@@ -56,9 +56,9 @@ class TweenerThread extends Thread
 	 * 新しい TweenerThread クラスのインスタンスを作成します.
 	 * 
 	 * @param	target	Tweener に渡す、トゥイーンのターゲット
-	 * @param	args	Tweener に渡す、トゥイーンの引数
+	 * @param	args	Tweener に渡す、トゥイーンの引数。複数渡すと、全てを連続して実行します
 	 */
-	public function new(target:Dynamic, args:Dynamic)
+	public function new(target:Dynamic, args:Array<Dynamic>)
 	{
 		super();
 		_target = target;
@@ -66,12 +66,10 @@ class TweenerThread extends Thread
 		_specialArgs = splitSpecialArgs(args);
 		_startTime = 0;
 		_monitor = new Monitor();
-		
-		args.onComplete = completeHandler;
 	}
 	
 	private var _target:Dynamic;
-	private var _args:Dynamic;
+	private var _args:Array<Dynamic>;
 	private var _specialArgs:Dynamic;
 	private var _startTime:Int;
 	private var _monitor:IMonitor;
@@ -125,6 +123,34 @@ class TweenerThread extends Thread
 	 */
 	override private function run():Void
 	{
+		if (_args.length == 0) {
+			return;
+		}
+		
+		_startTime = Math.round(haxe.Timer.stamp() * 1000);
+		
+		_monitor.wait();
+		Thread.interrupted(interruptedHandler);
+		
+		nextTween();
+	}
+	
+	/**
+	 * @private
+	 */
+	private function nextTween():Void
+	{
+		if (_args.length == 0) {
+			_monitor.notifyAll();
+			return;
+		}
+		
+		var a:Dynamic = _args.shift();
+		
+		_specialArgs = splitSpecialArgs(a);
+		
+		a.onComplete = completeHandler;
+		
 		if (Reflect.hasField(_specialArgs, "show") && _specialArgs.show) {
 			if (Std.is(_target, DisplayObject)) {
 				cast((_target), DisplayObject).visible = true;
@@ -136,20 +162,7 @@ class TweenerThread extends Thread
 			}
 		}
 		
-		_startTime = Math.round(haxe.Timer.stamp() * 1000);
-		
-		Tweener.addTween(_target, _args);
-		
-		waitTween();
-	}
-	
-	/**
-	 * @private
-	 */
-	private function waitTween():Void
-	{
-		_monitor.wait();
-		Thread.interrupted(interruptedHandler);
+		Tweener.addTween(_target, a);
 	}
 	
 	/**
@@ -168,7 +181,7 @@ class TweenerThread extends Thread
 			}
 		}
 		
-		_monitor.notifyAll();
+		nextTween();
 	}
 	
 	/**

@@ -24,82 +24,39 @@
  * THE SOFTWARE.
  * 
  */
-package org.libspark.thread.threads.frocessing;
+package org.libspark.thread.threads.utils;
 
 
-import flash.display.Graphics;
-import frocessing.core.F5Graphics;
-import frocessing.core.F5Graphics3D;
+import flash.utils.Function;
 import org.libspark.thread.Thread;
 
-/**
- * Forcessing を実行するためのスレッドです.
- * 
- * <p>描画には F5Graphics3D クラスが使用されます。</p>
- * 
- * @author	utibenkei
- */
-class Frocessing3DThread extends Thread
+class FunctionThread extends Thread
 {
-	private var fg(get, never):F5Graphics3D;
-
+	private var _func:Function;
+	private var _params:Array<Dynamic>;
+	
 	/**
-	 * 新しい Frocessing3DThread クラスのインスタンスを作成します.
+	 * 新しい FunctionThread インスタンスを作成します.
 	 * 
-	 * @param	target	描画先となる Graphics
+	 * @param func 実行したい関数です.
+	 * @param params 関数に渡す引数です.
 	 */
-	public function new(target:Graphics)
+	public function new(func:Function, params:Array<Dynamic>)
 	{
 		super();
-		_fg = new F5Graphics3D(target, 100, 100);
+		_func = func;
+		_params = params;
 	}
 	
-	private var _fg:F5Graphics3D;
-	
-	/**
-	 * 描画をするための F5Graphics3D
-	 */
-	private function get_fg():F5Graphics3D
-	{
-		return _fg;
-	}
-	
-	/**
-	 * @private
-	 */
 	override private function run():Void
 	{
-		setup();
-		doDraw();
+		Reflect.callMethod(null, _func, _params);
 	}
 	
-	/**
-	 * @private
-	 */
-	private function doDraw():Void
+	override private function finalize():Void
 	{
-		fg.beginDraw();
-		draw();
-		fg.endDraw();
-		
-		Thread.next(doDraw);
-	}
-	
-	/**
-	 * このメソッドをオーバーライドして初期化処理を記述します.
-	 */
-	private function setup():Void
-	{
-		
-		
-	}
-	
-	/**
-	 * このメソッドをオーバーライドして描画処理を記述します.
-	 */
-	private function draw():Void
-	{
-		
-		
+		_func = null;
+		_params = null;
 	}
 }
+

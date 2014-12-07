@@ -36,6 +36,8 @@ class TestMain
 		
 		runner.completionHandler = completionHandler;
 		runner.run(suites);
+		
+		//trace('NOTE: It may tooks over 10 seconds until result will be shown (because there are async tests). Please have some coffee and wait. :)');
 	}
 
 	/*
