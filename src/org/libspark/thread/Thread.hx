@@ -28,13 +28,12 @@ package org.libspark.thread;
 
 
 import flash.errors.Error;
+#if flash
 import flash.errors.ReferenceError;
+#end
 import flash.events.Event;
 import flash.events.IEventDispatcher;
 import haxe.Constraints.Function;
-
-
-
 import org.libspark.thread.errors.CurrentThreadNotFoundError;
 import org.libspark.thread.errors.IllegalThreadStateError;
 import org.libspark.thread.errors.InterruptedError;
@@ -1004,11 +1003,17 @@ class Thread extends Monitor
 			try{
 				className = Type.getClassName(Type.getSuperClass(Type.resolveClass(className)));
 			}
+			#if flash
 			catch (e:ReferenceError){
 				// ここで出る ReferenceError は getDefinitionByName によるもの
 				// プライベートクラス等の場合に起こりうる
 				className = null;
 			}
+			#end
+			catch (e:Error){
+				className = null;
+			}
+			
 		}
 		
 		return null;
