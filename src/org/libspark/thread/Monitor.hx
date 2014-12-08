@@ -67,7 +67,7 @@ class Monitor implements IMonitor
 	 * @param	timeout	タイムアウトするまでの時間
 	 * @private
 	 */
-	private function registerTimeout(thread:Thread, timeout:Int):Void
+	private function registerTimeout(thread:Thread, timeout:UInt):Void
 	{
 		// マップがなければ生成
 		if (_timeoutList == null) {
@@ -109,7 +109,7 @@ class Monitor implements IMonitor
 	/**
 	 * @inheritDoc
 	 */
-	public function wait(timeout:Int = 0):Void
+	public function wait(timeout:UInt = 0):Void
 	{
 		// カレントスレッドを取得
 		var thread:Thread = Thread.getCurrentThread();

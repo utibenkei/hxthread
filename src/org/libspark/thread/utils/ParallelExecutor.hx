@@ -44,7 +44,7 @@ import org.libspark.thread.ThreadState;
  */
 class ParallelExecutor extends Executor
 {
-	private var _index:Int;
+	private var _index:UInt;
 	//private var _isInterrupted:Bool = false;//Redefinition of variable _isInterrupted in subclass is not allowed//!!!!!!!!!!
 	
 	/**
@@ -78,7 +78,8 @@ class ParallelExecutor extends Executor
 		// }
 		//
 		// を行っている
-		while (_index < _threads.length){
+		var l:UInt = _threads.length;
+		while (_index < l){
 			// 終了待ちをするスレッドを取得
 			var thread:Thread = _threads[_index++];
 			// スレッドの終了を待つ

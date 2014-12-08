@@ -98,7 +98,7 @@ class ImageThread extends Thread
 		var xml:Xml = Xml.parse(_xmlLoader.loader.data);
 		var data:Fast = new Fast(xml.firstElement());
 		
-		var	 i:Int = 0;
+		var	 i:UInt = 0;
 		for (obj in data.node.image.nodes.array) {
 			var imageUrl:String = obj.node.path.innerData + "" + obj.node.name.innerData;
 			_imageLoaders.addThread(new LoaderThread(new URLRequest(imageUrl)));

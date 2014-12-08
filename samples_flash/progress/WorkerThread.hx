@@ -30,8 +30,8 @@ class WorkerThread extends Thread implements IProgressNotifier
 		_progress = new Progress();
 	}
 	
-	private var _task:Int;
-	private var _worked:Int = 0;
+	private var _task:UInt;
+	private var _worked:UInt = 0;
 	private var _progress:Progress;
 	
 	/**

@@ -36,7 +36,7 @@ import org.libspark.thread.Thread;
  */
 class Executor extends Thread
 {
-	public var numThreads(get, never):Int;
+	public var numThreads(get, never):UInt;
 
 	/**
 	 * 新しい Executor クラスのインスタンスを作成します.
@@ -55,7 +55,7 @@ class Executor extends Thread
 	/**
 	 * 実行されるスレッドの数を返します.
 	 */
-	private function get_numThreads():Int
+	private function get_numThreads():UInt
 	{
 		return _threads.length;
 	}
@@ -66,7 +66,7 @@ class Executor extends Thread
 	 * @param	index	取得スレッドのインデックス
 	 * @return	インデックスの位置にあるスレッド
 	 */
-	public function getThreadAt(index:Int):Thread
+	public function getThreadAt(index:UInt):Thread
 	{
 		return _threads[index];
 	}

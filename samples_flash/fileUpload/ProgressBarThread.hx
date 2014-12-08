@@ -13,7 +13,7 @@ class ProgressBarThread extends Thread
 	 * @param	graphics	プログレスバーの描画先
 	 * @param	width	プログレスバーの最大幅
 	 */
-	public function new(progress:IProgress, graphics:Graphics, width:Int)
+	public function new(progress:IProgress, graphics:Graphics, width:UInt)
 	{
 		super();
 		_progress = progress;
@@ -25,7 +25,7 @@ class ProgressBarThread extends Thread
 	
 	private var _progress:IProgress;
 	private var _graphics:Graphics;
-	private var _width:Int;
+	private var _width:UInt;
 	private var _displayWidth:Float;
 	
 	/**

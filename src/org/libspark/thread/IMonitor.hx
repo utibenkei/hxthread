@@ -46,7 +46,7 @@ interface IMonitor
 	 * @see	#notify()
 	 * @see	#notifyAll()
 	 */
-	function wait(timeout:Int = 0):Void;
+	function wait(timeout:UInt = 0):Void;
 	
 	/**
 	 * このモニターで待機中のスレッドを 1 つ再開します.

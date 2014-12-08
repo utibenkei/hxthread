@@ -145,7 +145,7 @@ class Thread extends Monitor
 	public var isInterrupted(get, never):Bool;
 
 	private static var _executor:IThreadExecutor;
-	private static var _threadIndex:Int = 0;
+	private static var _threadIndex:UInt = 0;
 	private static var _currentThread:Thread = null;
 	private static var _toplevelThreads:Array<Thread> = [];
 	private static var _uncaughtErrorHandler:Function = null;
@@ -347,8 +347,8 @@ class Thread extends Monitor
 	{
 		// 全てのトップレベルスレッドを呼び出す
 		var threads:Array<Thread> = _toplevelThreads;
-		var l:Int = threads.length;
-		var i:Int = 0;
+		var l:UInt = threads.length;
+		var i:UInt = 0;
 		
 		while (i < l){
 			var thread:Thread = threads[i];
@@ -486,7 +486,7 @@ class Thread extends Monitor
 	 * 
 	 * @param	time	実行を中断させる時間 (ミリ秒)
 	 */
-	public static function sleep(time:Int):Void
+	public static function sleep(time:UInt):Void
 	{
 		// time が 0 だと永遠に待ってしまうので最低でも 1 にする
 		if (time == 0) {
@@ -575,10 +575,10 @@ class Thread extends Monitor
 		_isInterrupted = false;
 	}
 	
-	private var _id:Int;
+	private var _id:UInt;
 	private var _name:String;
-	private var _state:Int;
-	private var _runningState:Int;
+	private var _state:UInt;
+	private var _runningState:UInt;
 	private var _children:Array<Thread>;
 	private var _runHandler:Function;
 	private var _savedRunHandler:Function;
@@ -600,7 +600,7 @@ class Thread extends Monitor
 	 * 
 	 * <p>initialize メソッドが呼び出されない限り、ふたつのスレッドに同じ id が割り振られることはありません。</p>
 	 */
-	private function get_id():Int
+	private function get_id():UInt
 	{
 		return _id;
 	}
@@ -639,7 +639,7 @@ class Thread extends Monitor
 	 * 
 	 * @see	ThreadState
 	 */
-	private function get_state():Int
+	private function get_state():UInt
 	{
 		return _state;
 	}
@@ -809,7 +809,7 @@ class Thread extends Monitor
 	 * @param	timeout	待機させる時間 (ミリ秒)。 0 を指定した場合、永遠に待ち続けます
 	 * @return	待機する必要がある場合は true、そうでない場合は false
 	 */
-	public function join(timeout:Int = 0):Bool
+	public function join(timeout:UInt = 0):Bool
 	{
 		// 既に終了していたらそのまま帰る
 		if (_state == ThreadState.TERMINATED) {
@@ -1153,8 +1153,8 @@ class Thread extends Monitor
 		// すべての子スレッドを呼び出す
 		var children:Array<Thread> = _children;
 		if (children != null) {
-			var cl:Int = children.length;
-			var ci:Int = 0;
+			var cl:UInt = children.length;
+			var ci:UInt = 0;
 			while (ci < cl){
 				var child:Thread = children[ci];
 				if (!child.execute()) {

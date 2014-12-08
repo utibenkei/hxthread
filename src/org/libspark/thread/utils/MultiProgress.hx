@@ -103,7 +103,7 @@ class MultiProgress extends EventDispatcher implements IProgress
 
 	private var _progresses:Array<ProgressHolder> = [];
 	private var _isProgressing:Bool = false;
-	private var _numCompleted:Int = 0;
+	private var _numCompleted:UInt = 0;
 	private var _isCompleted:Bool = false;
 	private var _isCanceled:Bool = false;
 	private var _isFailed:Bool = false;

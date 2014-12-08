@@ -44,7 +44,7 @@ import org.libspark.thread.ThreadState;
  */
 class SerialExecutor extends Executor
 {
-	private var _index:Int;
+	private var _index:UInt;
 	private var _current:Thread;
 	
 	/**

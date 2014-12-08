@@ -40,34 +40,31 @@ class ThreadState
 	/**
 	 * まだ起動されていないスレッドの状態です
 	 */
-	public static inline var NEW:Int = 0;
+	public static inline var NEW:UInt = 0;
 	
 	/**
 	 * 実行可能なスレッド (実行フェーズ) の状態です
 	 */
-	public static inline var RUNNABLE:Int = 1;
+	public static inline var RUNNABLE:UInt = 1;
 	
 	/**
 	 * 待機中のスレッドの状態です
 	 */
-	public static inline var WAITING:Int = 2;
+	public static inline var WAITING:UInt = 2;
 	
 	/**
 	 * 指定された時間、待機中のスレッドの状態です
 	 */
-	public static inline var TIMED_WAITING:Int = 3;
+	public static inline var TIMED_WAITING:UInt = 3;
 	
 	/**
 	 * 終了処理中のスレッド (終了フェーズ) の状態です
 	 */
-	public static inline var TERMINATING:Int = 4;
+	public static inline var TERMINATING:UInt = 4;
 	
 	/**
 	 * 終了したスレッドの状態です
 	 */
-	public static inline var TERMINATED:Int = 5;
-
-	public function new()
-	{
-	}
+	public static inline var TERMINATED:UInt = 5;
+	
 }

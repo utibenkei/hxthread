@@ -71,7 +71,7 @@ class TweenerThread extends Thread
 	private var _target:Dynamic;
 	private var _args:Array<Dynamic>;
 	private var _specialArgs:Dynamic;
-	private var _startTime:Int;
+	private var _startTime:UInt;
 	private var _monitor:IMonitor;
 	
 	/**
@@ -79,7 +79,7 @@ class TweenerThread extends Thread
 	 * 
 	 * <p>まだトゥイーンが開始されていない場合は 0 を返します。</p>
 	 */
-	private function get_time():Int
+	private function get_time():UInt
 	{
 		return (_startTime != 0) ? Math.round(haxe.Timer.stamp() * 1000) - _startTime : 0;
 	}
