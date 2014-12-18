@@ -1,39 +1,27 @@
 package org.libspark.thread;
 
+import async.tests.AsyncTestCase;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.events.IEventDispatcher;
 import haxe.Timer;
-import massive.munit.Assert;
-import massive.munit.async.AsyncFactory;
 import org.libspark.thread.EnterFrameThreadExecutor;
 import org.libspark.thread.Thread;
 
 
-class EventTest
+class EventTest extends AsyncTestCase
 {
 	
 	public function new() 
 	{
-		
+		super();
 	}
-	
-	@BeforeClass
-	public function beforeClass():Void
-	{
-	}
-	
-	@AfterClass
-	public function afterClass():Void
-	{
-	}
-	
+
 	/**
 	 * テストに相互作用が出ないようにテスト毎にスレッドライブラリを初期化。
 	 * 通常であれば、initializeの呼び出しは一度きり。
 	 */
-	@Before
-	public function setup():Void
+	override public function setup():Void
 	{
 		Thread.initialize(new EnterFrameThreadExecutor());
 	}
@@ -41,8 +29,7 @@ class EventTest
 	/**
 	 * 念のため、終了処理もしておく
 	 */
-	@After
-	public function tearDown():Void
+	override public function tearDown():Void
 	{
 		Thread.initialize(null);
 	}
@@ -55,19 +42,18 @@ class EventTest
 	 * 複数のイベントハンドラが設定されていた場合、最初に起きたイベントのみ有効となる。
 	 * 次の実行関数が実行される際に、イベントハンドラの設定はリセットされる。
 	 */
-	@AsyncTest
-	public function event(factory:AsyncFactory):Void
+	public function test_event():Void
 	{
 		Static.log = "";
 		
 		var e:EventTestThread = new EventTestThread();
 		var t:TesterThread = new TesterThread(e);
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(ev:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(ev:Event):Void
 						{
-							Assert.areEqual("run dispatch hoge finalize ", Static.log);
-							Assert.isNotNull(e.e);
-							Assert.areSame(e.ev.type, e.e.type);
+							assertEquals("run dispatch hoge finalize ", Static.log);
+							assertTrue((e.e != null));
+							assertTrue((e.ev.type == e.e.type));
 						}, 1000));
 		t.start();
 		
@@ -78,16 +64,15 @@ class EventTest
 	/**
 	 * 既に wait している状態でもイベントハンドラを仕掛けることが出来るか
 	 */
-	@AsyncTest
-	public function timedJoin(factory:AsyncFactory):Void
+	public function test_timedJoin():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new WaitAndEventTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(ev:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(ev:Event):Void
 						{
-							Assert.areEqual("run dispatch event finalize ", Static.log);
+							assertEquals("run dispatch event finalize ", Static.log);
 						}, 1000));
 		t.start();
 	}
@@ -95,16 +80,15 @@ class EventTest
 	/**
 	 * イベントハンドラが設定されている場合でも、 next が設定された場合は待機状態にならずに動作することができるか
 	 */
-	@AsyncTest
-	public function nextAndEvent(factory:AsyncFactory):Void
+	public function test_nextAndEvent():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new NextAndEventTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("run run run dispatch event finalize ", Static.log);
+							assertEquals("run run run dispatch event finalize ", Static.log);
 						}, 1000));
 		t.start();
 	}

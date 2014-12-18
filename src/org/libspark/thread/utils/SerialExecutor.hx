@@ -75,7 +75,8 @@ class SerialExecutor extends Executor
 		
 		
 		// もう実行するスレッドがない場合終了する 
-		if (_threads.length <= _index) {
+		var l:UInt = _threads.length;
+		if (l <= _index) {
 			return;
 		} 
 		// もしくは割り込まれた場合は終了する 

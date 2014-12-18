@@ -27,12 +27,11 @@
 package org.libspark.thread.threads.utils;
 
 
-import flash.utils.Function;
 import org.libspark.thread.Thread;
 
 class FunctionThread extends Thread
 {
-	private var _func:Function;
+	private var _func:Dynamic;
 	private var _params:Array<Dynamic>;
 	
 	/**
@@ -41,7 +40,7 @@ class FunctionThread extends Thread
 	 * @param func 実行したい関数です.
 	 * @param params 関数に渡す引数です.
 	 */
-	public function new(func:Function, params:Array<Dynamic>)
+	public function new(func:Dynamic, params:Array<Dynamic>)
 	{
 		super();
 		_func = func;

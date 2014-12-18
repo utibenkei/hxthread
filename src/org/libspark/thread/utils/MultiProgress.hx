@@ -313,7 +313,8 @@ class MultiProgress extends EventDispatcher implements IProgress
 		_numCompleted++;
 		
 		// 全て終わっていなければまだ待つ
-		if (_numCompleted < _progresses.length) {
+		var len:UInt = _progresses.length;
+		if (_numCompleted < len) {
 			return;
 		}
 		

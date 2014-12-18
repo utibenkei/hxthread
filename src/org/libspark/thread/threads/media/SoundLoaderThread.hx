@@ -27,17 +27,22 @@
 package org.libspark.thread.threads.media;
 
 
+import flash.errors.IOError;
 import flash.events.Event;
 import flash.events.IOErrorEvent;
 import flash.events.ProgressEvent;
 import flash.media.Sound;
 import flash.media.SoundLoaderContext;
 import flash.net.URLRequest;
-import flash.errors.IOError;
+import org.libspark.thread.Thread;
 import org.libspark.thread.utils.IProgress;
 import org.libspark.thread.utils.IProgressNotifier;
 import org.libspark.thread.utils.Progress;
-import org.libspark.thread.Thread;
+
+#if (HXTHREAD_USE_LOADBYTES_SOUNDLOADER && !html5)
+import flash.net.URLLoaderDataFormat;
+import flash.net.URLLoader;
+#end
 
 /**
  * Sound を読み込むためのスレッドです.
@@ -53,6 +58,16 @@ import org.libspark.thread.Thread;
  * <ul>
  * <li>flash.events.IOErrorEvent.IO_ERROR: flash.errors.IOError</li>
  * </ul>
+ * 
+ * 
+ * //flash (mp3)
+ * //native (ogg / wav)※
+ * //html5  (mp3 / ogg / wav)
+ * 
+ * // ※native ターゲットではsound.load()未対応なのでストリーミング再生きないが、"HXTHREAD_USE_LOADBYTES_SOUNDLOADER"コンパイルフラグをつけることで、
+ * // URLLoaderでバイナリデータを完全ロードする方式で再生できるようにしました(ogg/wav形式のみ)
+ * 
+ * // TODO flashターゲットではwav形式のストリーミング再生は未対応だが、一旦バイナリでロードしてからloadPCMFromByteArray()でロード可能になるかも？
  * 
  * @author	utibenkei
  */
@@ -77,12 +92,20 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 		_context = context;
 		_sound = (sound != null) ? sound : new Sound();
 		_progress = new Progress();
+		
+		#if (HXTHREAD_USE_LOADBYTES_SOUNDLOADER && !html5)
+		_binLoader = new URLLoader();
+		#end
 	}
 	
 	private var _request:URLRequest;
 	private var _context:SoundLoaderContext;
 	private var _sound:Sound;
 	private var _progress:Progress;
+	
+	#if (HXTHREAD_USE_LOADBYTES_SOUNDLOADER && !html5)
+	private var _binLoader:URLLoader;
+	#end
 	
 	/**
 	 * ロード対象となる URLRequest を返します.
@@ -133,9 +156,35 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 		// 割り込みハンドラを設定
 		Thread.interrupted(interruptedHandler);
 		
-		// ロード開始
-		_sound.load(_request, _context);
+		#if (native || html5)
+			// １フレーム遅らせてからロード開始する
+			// openflの native/html5 ターゲットではローカル上のファイルをロードした際に瞬時に完了イベントが発行される？
+			// (internalExecute()内のeventHandler.register()でリスナーが設定される前にロード完了イベントが発行されてしまうことへの対処)
+			openfl.Lib.current.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+		#else
+			// ロード開始
+			#if !HXTHREAD_USE_LOADBYTES_SOUNDLOADER
+				_sound.load(_request, _context);
+			#else
+				_binLoader.dataFormat = URLLoaderDataFormat.BINARY;
+				_binLoader.load(_request);
+			#end
+		#end
 	}
+	
+	#if (native || html5)
+	private function enterFrameHandler(e:Event):Void
+	{
+		openfl.Lib.current.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
+		// ロード開始
+		#if !(HXTHREAD_USE_LOADBYTES_SOUNDLOADER && !html5)
+			_sound.load(_request, _context);
+		#else
+			_binLoader.dataFormat = URLLoaderDataFormat.BINARY;
+			_binLoader.load(_request);
+		#end
+	}
+	#end
 	
 	/**
 	 * イベントハンドラの登録
@@ -144,9 +193,15 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 	 */
 	private function events():Void
 	{
-		Thread.event(_sound, Event.COMPLETE, completeHandler);
-		Thread.event(_sound, ProgressEvent.PROGRESS, progressHandler);
-		Thread.event(_sound, IOErrorEvent.IO_ERROR, ioErrorHandler);
+		#if !(HXTHREAD_USE_LOADBYTES_SOUNDLOADER && !html5)
+			Thread.event(_sound, Event.COMPLETE, completeHandler);
+			Thread.event(_sound, ProgressEvent.PROGRESS, progressHandler);
+			Thread.event(_sound, IOErrorEvent.IO_ERROR, ioErrorHandler);
+		#else
+			Thread.event(_binLoader, Event.COMPLETE, completeHandler);
+			Thread.event(_binLoader, ProgressEvent.PROGRESS, progressHandler);
+			Thread.event(_binLoader, IOErrorEvent.IO_ERROR, ioErrorHandler);
+		#end
 	}
 	
 	/**
@@ -188,6 +243,10 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 	 */
 	private function completeHandler(e:Event):Void
 	{
+		#if (HXTHREAD_USE_LOADBYTES_SOUNDLOADER && !html5)
+		_sound.loadCompressedDataFromByteArray(_binLoader.data, _binLoader.data.length);
+		#end
+		
 		// 必要であれば開始を通知 (問題が発生しなければ通常 progressHandler で通知される)
 		notifyStartIfNeeded(0);
 		
@@ -219,11 +278,19 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 	 */
 	private function interruptedHandler():Void
 	{
+		#if (native || html5)
+		openfl.Lib.current.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
+		#end
+		
 		// 必要であれば開始を通知 (問題が発生しなければ通常 progressHandler で通知される)
 		notifyStartIfNeeded(0);
 		
 		// ロードをキャンセル
-		_sound.close();
+		#if !(HXTHREAD_USE_LOADBYTES_SOUNDLOADER && !html5)
+			_sound.close();
+		#else
+			_binLoader.close();
+		#end
 		
 		// キャンセルを通知
 		_progress.cancel();

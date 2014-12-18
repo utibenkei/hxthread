@@ -33,11 +33,11 @@ import flash.errors.ReferenceError;
 #end
 import flash.events.Event;
 import flash.events.IEventDispatcher;
-import haxe.Constraints.Function;
 import org.libspark.thread.errors.CurrentThreadNotFoundError;
 import org.libspark.thread.errors.IllegalThreadStateError;
 import org.libspark.thread.errors.InterruptedError;
 import org.libspark.thread.errors.ThreadLibraryNotInitializedError;
+
 
 /**
  * Thread クラスは ActionScript Thread Library 1.0 (そうめん) の核となるクラスで、擬似スレッドを実現します.
@@ -136,18 +136,18 @@ class Thread extends Monitor
 {
 	public static var isReady(get, never):Bool;
 	public static var currentThread(get, never):Thread;
-	public static var uncaughtErrorHandler(get, set):Function;
+	public static var uncaughtErrorHandler(get, set):Dynamic->Thread->Void;
 	public var id(get, never):Int;
 	public var name(get, set):String;
 	public var className(get, never):String;
 	public var state(get, never):Int;
 	public var isInterrupted(get, never):Bool;
-
+	
 	private static var _executor:IThreadExecutor;
-	private static var _threadIndex:UInt = 0;
+	private static var _threadIndex:UInt = 1;
 	private static var _currentThread:Thread = null;
 	private static var _toplevelThreads:Array<Thread> = [];
-	private static var _uncaughtErrorHandler:Function = null;
+	private static var _uncaughtErrorHandler:Dynamic->Thread->Void = null;
 	private static var _defaultErrorHandlers:Map<String, ErrorHandler> = null;
 	
 	/**
@@ -163,12 +163,12 @@ class Thread extends Monitor
  */
 	public static function initialize(executor:IThreadExecutor):Void
 	{
-		_threadIndex = 0;
+		_threadIndex = 1;// as3版と同じにするために0から1に変更
 		_currentThread = null;
-		#if !(cpp || php)
-			untyped _toplevelThreads.length = 0;
+		#if flash
+		untyped _toplevelThreads.length = 0;
 		#else
-			_toplevelThreads.splice(0,_toplevelThreads.length);
+		_toplevelThreads.splice(0, _toplevelThreads.length);
 		#end
 		
 		
@@ -183,6 +183,7 @@ class Thread extends Monitor
 		if (_executor != null) {
 			_executor.start();
 		}
+		
 	}
 	
 	/**
@@ -233,7 +234,7 @@ class Thread extends Monitor
 	 * 
 	 * <p>ここに登録する関数は、第一引数に発生した例外である Object と、第二引数に発生元のスレッドである Thread を引数としてとる必要があります。</p>
 	 */
-	private static function get_uncaughtErrorHandler():Function
+	private static function get_uncaughtErrorHandler():Dynamic->Thread->Void
 	{
 		return _uncaughtErrorHandler;
 	}
@@ -241,7 +242,7 @@ class Thread extends Monitor
 	/**
 	 * @private
 	 */
-	private static function set_uncaughtErrorHandler(value:Function):Function
+	private static function set_uncaughtErrorHandler(value:Dynamic->Thread->Void):Dynamic->Thread->Void
 	{
 		_uncaughtErrorHandler = value;
 		return value;
@@ -255,7 +256,7 @@ class Thread extends Monitor
 	 * @return	ユーザーによって設定された例外ハンドラ。無い場合はデフォルトのハンドラ。
 	 * @private
 	 */
-	private static function getUncaughtErrorHandler():Function
+	private static function getUncaughtErrorHandler():Dynamic->Thread->Void
 	{
 		return (uncaughtErrorHandler != null) ? uncaughtErrorHandler : defaultErrorHandler;
 	}
@@ -285,7 +286,7 @@ class Thread extends Monitor
 	 * @param	func	例外が発生した際に実行される実行関数
 	 * @param	autoTermination	実行関数の実行後、Thread#next(null) を自動的に呼び出すのであれば true, そうでなければ false
 	 */
-	public static function registerDefaultErrorHandler(klass:Class<Dynamic>, func:Function, autoTermination:Bool = false):Void
+	public static function registerDefaultErrorHandler(klass:Class<Dynamic>, func:Dynamic->Thread->Void, autoTermination:Bool = false):Void
 	{
 		if (func != null) {
 			addDefaultErrorHandler(klass, func, autoTermination);
@@ -315,7 +316,7 @@ class Thread extends Monitor
 	 * @param	autoTermination	自動で next(null) を呼び出すか
 	 * @private
 	 */
-	private static function addDefaultErrorHandler(klass:Class<Dynamic>, handler:Function, autoTermination:Bool):Void
+	private static function addDefaultErrorHandler(klass:Class<Dynamic>, handler:Dynamic->Thread->Void, autoTermination:Bool):Void
 	{
 		getDefaultErrorHandlers()[Type.getClassName(klass)] = new ErrorHandler(handler, false, autoTermination);
 	}
@@ -365,7 +366,7 @@ class Thread extends Monitor
 			// Note: _errorThread が null の場合、この例外はまだ伝播すべきではないことを示す
 			if (thread._error != null && thread._errorThread != null) {
 				try {
-					//getUncaughtErrorHandler()(thread._error, thread._errorThread);
+					//getUncaughtErrorHandler()(thread._error, thread._errorThread)
 					Reflect.callMethod(Thread, getUncaughtErrorHandler(), [thread._error, thread._errorThread]);
 				}
 				catch (e:Dynamic) {
@@ -411,7 +412,7 @@ class Thread extends Monitor
 	 * 
 	 * @param	func	次に実行する実行関数
 	 */
-	public static function next(func:Function):Void
+	public static function next(func:Dynamic):Void
 	{
 		getCurrentThread()._runHandler = func;
 	}
@@ -431,7 +432,7 @@ class Thread extends Monitor
 	 * @param	reset	次の実行のタイミングでこの設定を削除する場合には true、そうでなければ false
 	 * @param	autoTermination	実行関数の実行後、Thread#next(null) を自動的に呼び出すのであれば true, そうでなければ false
 	 */
-	public static function error(klass:Class<Dynamic>, func:Function, reset:Bool = true, autoTermination:Bool = false):Void
+	public static function error(klass:Class<Dynamic>, func:Dynamic->Thread->Void, reset:Bool = true, autoTermination:Bool = false):Void
 	{
 		if (func != null) {
 			getCurrentThread().addErrorHandler(klass, func, reset, autoTermination);
@@ -448,7 +449,7 @@ class Thread extends Monitor
 	 * 
 	 * @param	func	タイムアウトした場合に実行する実行関数
 	 */
-	public static function timeout(func:Function):Void
+	public static function timeout(func:Dynamic):Void
 	{
 		getCurrentThread()._timeoutHandler = func;
 	}
@@ -471,7 +472,7 @@ class Thread extends Monitor
 	 * @param	useWeakReference	flash.events.IEventDispatcher#addEventListener() の該当する引数を参照してください。
 	 * @see	flash.events.IEventDispatcher#addEventListener()
 	 */
-	public static function event(dispatcher:IEventDispatcher, type:String, func:Function, useCapture:Bool = false, priority:Int = 0, useWeakReference:Bool = false):Void
+	public static function event(dispatcher:IEventDispatcher, type:String, func:Dynamic->Void, useCapture:Bool = false, priority:Int = 0, useWeakReference:Bool = false):Void
 	{
 		getCurrentThread().addEventHandler(dispatcher, type, func, useCapture, priority, useWeakReference);
 	}
@@ -516,7 +517,7 @@ class Thread extends Monitor
 	 * 
 	 * @param	func	待機中に割り込まれた場合に実行する実行関数
 	 */
-	public static function interrupted(func:Function):Void
+	public static function interrupted(func:Dynamic):Void
 	{
 		getCurrentThread()._interruptedHandler = func;
 	}
@@ -579,19 +580,19 @@ class Thread extends Monitor
 	private var _state:UInt;
 	private var _runningState:UInt;
 	private var _children:Array<Thread>;
-	private var _runHandler:Function;
-	private var _savedRunHandler:Function;
-	private var _timeoutHandler:Function;
-	private var _interruptedHandler:Function;
+	private var _runHandler:Dynamic;
+	private var _savedRunHandler:Dynamic;
+	private var _timeoutHandler:Dynamic;
+	private var _interruptedHandler:Dynamic;
 	private var _waitMonitor:IMonitor;
 	private var _joinMonitor:IMonitor;
 	private var _sleepMonitor:IMonitor;
 	private var _eventMonitor:IMonitor;
-	private var _event:Event;
+	private var _event:Dynamic;
 	private var _errorHandlers:Map<String, ErrorHandler>;
 	private var _error:Dynamic;
 	private var _errorThread:Thread;
-	private var _eventHandlers:Array<Dynamic>;
+	private var _eventHandlers:Array<EventHandler>;
 	private var _isInterrupted:Bool;
 	
 	/**
@@ -726,9 +727,8 @@ class Thread extends Monitor
 			throw new IllegalThreadStateError("Thread can not wait.");
 		}
 		
-		
 		// state を待機状態に切り替える
-		_state = (timeout) ? ThreadState.TIMED_WAITING:ThreadState.WAITING;
+		_state = (timeout) ? ThreadState.TIMED_WAITING : ThreadState.WAITING;
 		
 		// モニタを保存
 		_waitMonitor = monitor;
@@ -774,7 +774,6 @@ class Thread extends Monitor
 			throw new IllegalThreadStateError("Thread can not wakeup.");
 		}
 		
-		
 		// state を実行状態に切り替える
 		_state = _runningState;
 		
@@ -799,7 +798,7 @@ class Thread extends Monitor
 	 */
 	private function getJoinMonitor():IMonitor
 	{
-		return (_joinMonitor != null) ? _joinMonitor:(_joinMonitor = new Monitor());
+		return (_joinMonitor != null) ? _joinMonitor : (_joinMonitor = new Monitor());
 	}
 	
 	/**
@@ -899,7 +898,7 @@ class Thread extends Monitor
 	 */
 	private function getErrorHandlers():Map<String, ErrorHandler>
 	{
-		return (_errorHandlers != null) ? _errorHandlers:(_errorHandlers = new Map<String, ErrorHandler>());
+		return (_errorHandlers != null) ? _errorHandlers : (_errorHandlers = new Map<String, ErrorHandler>());
 	}
 	
 	/**
@@ -911,7 +910,7 @@ class Thread extends Monitor
 	 * @param	autoTermination	自動で next(null) を呼び出すか
 	 * @private
 	 */
-	private function addErrorHandler(klass:Class<Dynamic>, handler:Function, reset:Bool, autoTermination:Bool):Void
+	private function addErrorHandler(klass:Class<Dynamic>, handler:Dynamic->Thread->Void, reset:Bool, autoTermination:Bool):Void
 	{
 		getErrorHandlers()[Type.getClassName(klass)] = new ErrorHandler(handler, reset, autoTermination);
 	}
@@ -931,6 +930,7 @@ class Thread extends Monitor
 		
 		// ハンドラマップから削除  
 		_errorHandlers.remove(Type.getClassName(klass));
+		
 	}
 	
 	/**
@@ -952,6 +952,7 @@ class Thread extends Monitor
 				_errorHandlers.remove(key);
 			}
 		}
+		
 	}
 	
 	/**
@@ -967,10 +968,12 @@ class Thread extends Monitor
 	{
 		// まずスレッド自身に登録されているエラーハンドラを検索
 		var handler:ErrorHandler = getErrorHandlerFrom(error, _errorHandlers);
+		
 		// 見つからなければ、デフォルトのエラーハンドラを検索
 		if (handler == null) {
 			handler = getErrorHandlerFrom(error, _defaultErrorHandlers);
 		}
+		
 		return handler;
 	}
 	
@@ -989,19 +992,23 @@ class Thread extends Monitor
 		}
 		
 		// error のクラス名を取得
-		var className:String = Type.getClassName(Type.getClass(error));
+		// js ターゲットではType.getClassName()にnullが入ると捕捉できない例外が発生するので回避
+		var errClass:Class<Dynamic> = Type.getClass(error);
+		var className:String = (errClass != null) ? Type.getClassName(errClass) : null;
 		
 		// クラス名が取得できる限り回す
 		while (className != null){
 			// ハンドラマップからクラス名をキーにしてハンドラを検索する
 			var handler:ErrorHandler = handlers.get(className);
+			
 			// 見つかればそれを返す
 			if (handler != null) {
 				return handler;
 			}  
 			// 見つからなければ、スーパークラスを辿る
 			try{
-				className = Type.getClassName(Type.getSuperClass(Type.resolveClass(className)));
+				errClass = Type.getSuperClass(Type.resolveClass(className));
+				className = (errClass != null) ? Type.getClassName(errClass) : null;
 			}
 			#if flash
 			catch (e:ReferenceError){
@@ -1014,7 +1021,14 @@ class Thread extends Monitor
 				className = null;
 			}
 			
+			
 		}
+		
+		// ハンドラマップのキーにObjectが含まれていた場合
+		var handler:ErrorHandler = handlers.get(Type.getClassName(Object));
+		if (handler != null) {
+			return handler;
+		} 
 		
 		return null;
 	}
@@ -1027,7 +1041,7 @@ class Thread extends Monitor
 	 */
 	private function getEventMonitor():IMonitor
 	{
-		return (_eventMonitor != null) ? _eventMonitor:(_eventMonitor = new Monitor());
+		return (_eventMonitor != null) ? _eventMonitor : (_eventMonitor = new Monitor());
 	}
 	
 	/**
@@ -1036,9 +1050,9 @@ class Thread extends Monitor
 	 * @return	イベントハンドラの配列
 	 * @private
 	 */
-	private function getEventHandlers():Array<Dynamic>
+	private function getEventHandlers():Array<EventHandler>
 	{
-		return (_eventHandlers != null) ? _eventHandlers:(_eventHandlers = []);
+		return (_eventHandlers != null) ? _eventHandlers : (_eventHandlers = []);
 	}
 	
 	/**
@@ -1052,7 +1066,7 @@ class Thread extends Monitor
 	 * @param	useWeakReference	addEventListener 参照
 	 * @private
 	 */
-	private function addEventHandler(dispatcher:IEventDispatcher, type:String, func:Function, useCapture:Bool, priority:Int, useWeakReference:Bool):Void
+	private function addEventHandler(dispatcher:IEventDispatcher, type:String, func:Dynamic->Void, useCapture:Bool, priority:Int, useWeakReference:Bool):Void
 	{
 		// イベントハンドラを作成してリストに追加
 		getEventHandlers().push(new EventHandler(dispatcher, type, eventHandler, func, useCapture, priority, useWeakReference));
@@ -1070,7 +1084,6 @@ class Thread extends Monitor
 			return;
 		}
 		
-		
 		// 全てのイベントハンドラの登録を解除
 		for (handler in _eventHandlers){
 			handler.unregister();
@@ -1078,10 +1091,10 @@ class Thread extends Monitor
 		
 		
 		// 配列を初期化
-		#if (cpp || php)
-		_eventHandlers.splice(0,_eventHandlers.length);
-		#else
+		#if flash
 		untyped _eventHandlers.length = 0;
+		#else
+		_eventHandlers.splice(0, _eventHandlers.length);
 		#end
 	}
 	
@@ -1092,7 +1105,7 @@ class Thread extends Monitor
 	 * @param	handler	該当するイベントハンドラ
 	 * @private
 	 */
-	private function eventHandler(e:Event, handler:EventHandler):Void
+	private function eventHandler(e:Dynamic, handler:EventHandler):Void
 	{
 		// 既にイベントが起こっていれば何もしない
 		if (_event != null) {
@@ -1153,7 +1166,7 @@ class Thread extends Monitor
 		
 		// 発生した例外
 		var error:Dynamic = _error;
-		var errorThread:Thread = (_errorThread != null) ? _errorThread:this;
+		var errorThread:Thread = (_errorThread != null) ? _errorThread : this;
 		
 		// すべての子スレッドを呼び出す
 		var children:Array<Thread> = _children;
@@ -1162,6 +1175,7 @@ class Thread extends Monitor
 			var ci:UInt = 0;
 			while (ci < cl){
 				var child:Thread = children[ci];
+				
 				if (!child.execute()) {
 					// 終了したら削除
 					children.splice(ci, 1);
@@ -1170,7 +1184,6 @@ class Thread extends Monitor
 				else {
 					ci++;
 				}
-				
 				
 				// 子スレッドで例外が起きていたら一番最初のものを保存
 				// Note: _errorThread が null の場合、その例外はまだ親に伝播するべきではないことを示す
@@ -1206,6 +1219,7 @@ class Thread extends Monitor
 				_waitMonitor = null;
 				// state を切り替える
 				_state = _runningState;
+				
 			}
 			else {
 				// 例外が発生していない場合はここでリターン
@@ -1213,9 +1227,8 @@ class Thread extends Monitor
 			}
 		}
 		
-		
 		// 今回実行する実行関数
-		var runHandler:Function = null;
+		var runHandler:Dynamic = null;
 		// エラーハンドラ
 		var errorHandler:ErrorHandler = null;
 		
@@ -1257,7 +1270,6 @@ class Thread extends Monitor
 			runHandler = _runHandler;
 		}
 		
-		
 		// 実行関数をリセット  
 		_runHandler = null;
 		// タイムアウトハンドラをリセット
@@ -1274,7 +1286,6 @@ class Thread extends Monitor
 			_runHandler = _savedRunHandler;
 		}  
 		
-		
 		// Note: finalize の最後で wait が入って待機状態になった後に起きた等の場合に、
 		//		runHandler が null の状態でここに到達することがある
 		if (runHandler != null) {
@@ -1282,7 +1293,7 @@ class Thread extends Monitor
 			// カレントスレッドを設定
 			_currentThread = this;
 			
-			try{
+			try {
 				// 実行関数を呼び出す
 				if (errorHandler != null) {
 					// エラーハンドラである場合は例外と例外の発生元のスレッドを引数として渡す
@@ -1303,7 +1314,7 @@ class Thread extends Monitor
 					Reflect.callMethod(this, runHandler, []);
 				}
 			}
-			catch (e:Dynamic){
+			catch (e:Dynamic) {
 				// 例外が発生した場合例外を保存
 				_error = e;
 				// エラーハンドラ以外で例外が発生し、かつ該当するエラーハンドラが存在する場合
@@ -1328,12 +1339,10 @@ class Thread extends Monitor
 			
 		}
 		
-		
 		// 今エラーハンドラを実行し、かつエラーが発生していない場合、保存しておいた実行関数はもう必要ないので破棄
 		if (errorHandler != null && _error == null) {
 			_savedRunHandler = null;
 		}
-		
 		
 		// イベントハンドラが設定された場合
 		if (_eventHandlers != null && _eventHandlers.length > 0) {
@@ -1367,6 +1376,7 @@ class Thread extends Monitor
 				// 待機状態に入っている場合は次に繰り越す
 			}
 			else if (_runningState == ThreadState.TERMINATING) {
+				
 				// 終了フェーズだった場合は実行を終了する
 				// 自分の子スレッドを、孤児スレッドとしてトップレベルに移動する
 				if (_children != null) {
@@ -1472,3 +1482,6 @@ class Thread extends Monitor
 		return formatName(name);
 	}
 }
+
+// ハンドラマップのキーとして指定するためのクラス
+class Object { }

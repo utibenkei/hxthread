@@ -30,7 +30,6 @@ package org.libspark.thread.utils;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.events.IEventDispatcher;
-import flash.utils.Function;
 import org.libspark.thread.Thread;
 
 /**
@@ -51,7 +50,7 @@ class EventDispatcherThread extends Thread implements IEventDispatcher
 	/**
 	 * @inheritDoc
 	 */
-	public function addEventListener(type:String, listener:Function, useCapture:Bool = false, priority:Int = 0, useWeakReference:Bool = false):Void
+	public function addEventListener(type:String, listener:Dynamic->Void, useCapture:Bool = false, priority:Int = 0, useWeakReference:Bool = false):Void
 	{
 		_dispatcher.addEventListener(type, listener, useCapture, priority, useWeakReference);
 	}
@@ -75,7 +74,7 @@ class EventDispatcherThread extends Thread implements IEventDispatcher
 	/**
 	 * @inheritDoc
 	 */
-	public function removeEventListener(type:String, listener:Function, useCapture:Bool = false):Void
+	public function removeEventListener(type:String, listener:Dynamic->Void useCapture:Bool = false):Void
 	{
 		_dispatcher.removeEventListener(type, listener, useCapture);
 	}

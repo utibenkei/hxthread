@@ -29,7 +29,6 @@ package org.libspark.thread;
 
 import flash.events.Event;
 import flash.events.IEventDispatcher;
-import flash.utils.Function;
 
 /**
 	 * @author	utibenkei
@@ -38,7 +37,7 @@ import flash.utils.Function;
 class EventHandler
 {
 	@:allow(org.libspark.thread)
-	public function new(dispatcher:IEventDispatcher, type:String, listener:Function, func:Function, useCapture:Bool, priority:Int, useWeakReference:Bool)
+	public function new(dispatcher:IEventDispatcher, type:String, listener:Dynamic->EventHandler->Void, func:Dynamic->Void, useCapture:Bool, priority:Int, useWeakReference:Bool)
 	{
 		this.dispatcher = dispatcher;
 		this.type = type;
@@ -51,8 +50,8 @@ class EventHandler
 	
 	public var dispatcher:IEventDispatcher;
 	public var type:String;
-	public var listener:Function;
-	public var func:Function;
+	public var listener:Dynamic->EventHandler->Void;
+	public var func:Dynamic->Void;
 	public var useCapture:Bool;
 	public var priority:Int;
 	public var useWeakReference:Bool;

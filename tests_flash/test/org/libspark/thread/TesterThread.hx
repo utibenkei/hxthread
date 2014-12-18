@@ -2,12 +2,15 @@ package org.libspark.thread;
 
 
 import flash.errors.Error;
-import flash.utils.Function;
-import org.libspark.thread.Thread;
-
 import flash.events.Event;
 import flash.events.EventDispatcher;
+import flash.utils.Function;
+
+import haxe.Timer;
+
+import org.libspark.thread.Thread;
 //import flash.utils.SetTimeout;
+
 
 class TesterThread extends Thread
 {
@@ -46,10 +49,9 @@ class TesterThread extends Thread
 	
 	override private function finalize():Void
 	{
-		//trace("TesterThread::finalize");
-		
 		//setTimeout(dispatchHandler, 1);
-		untyped __global__["flash.utils.setTimeout"](dispatchHandler, 200);
+		//untyped __global__["flash.utils.setTimeout"](dispatchHandler, 1);
+		Timer.delay(dispatchHandler, 1);
 	}
 	
 	private function dispatchHandler():Void

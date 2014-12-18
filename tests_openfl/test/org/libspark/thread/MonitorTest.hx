@@ -1,37 +1,26 @@
 package org.libspark.thread;
 
+import async.tests.AsyncTestCase;
 import flash.events.Event;
 import haxe.Timer;
-import massive.munit.Assert;
-import massive.munit.async.AsyncFactory;
 import org.libspark.thread.EnterFrameThreadExecutor;
 import org.libspark.thread.Thread;
 
 
-class MonitorTest
+class MonitorTest extends AsyncTestCase
 {
 	
 	public function new() 
 	{
-		
+		super();
 	}
 	
-	@BeforeClass
-	public function beforeClass():Void
-	{
-	}
-	
-	@AfterClass
-	public function afterClass():Void
-	{
-	}
 	
 	/**
 	 * テストに相互作用が出ないようにテスト毎にスレッドライブラリを初期化。
 	 * 通常であれば、initializeの呼び出しは一度きり。
 	 */
-	@Before
-	public function setup():Void
+	override public function setup():Void
 	{
 		Thread.initialize(new EnterFrameThreadExecutor());
 	}
@@ -39,8 +28,7 @@ class MonitorTest
 	/**
 	 * 念のため、終了処理もしておく
 	 */
-	@After
-	public function tearDown():Void
+	override public function tearDown():Void
 	{
 		Thread.initialize(null);
 	}
@@ -50,16 +38,15 @@ class MonitorTest
 	 * wait を呼び出して待機しているスレッドが notify の呼び出しで起きるかどうか。
 	 * 待機しているスレッドのうち、ひとつだけが起きる。
 	 */
-	@AsyncTest
-	public function notify(factory:AsyncFactory):Void
+	public function test_notify():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new NotifyTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("run wait wait notify wakeup notify wakeup ", Static.log);
+							assertEquals("run wait wait notify wakeup notify wakeup ", Static.log);
 						}, 1000));
 		t.start();
 		
@@ -69,16 +56,15 @@ class MonitorTest
 	 * wait を呼び出して待機しているスレッドが notifyAll の呼び出しで起きるかどうか。
 	 * 待機しているスレッドのすべてが起きる。
 	 */
-	@AsyncTest
-	public function notifyAll(factory:AsyncFactory):Void
+	public function test_notifyAll():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new NotifyAllTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("run wait wait notifyAll wakeup wakeup ", Static.log);
+							assertEquals("run wait wait notifyAll wakeup wakeup ", Static.log);
 						}, 1000));
 		t.start();
 		
@@ -88,18 +74,17 @@ class MonitorTest
 	 * wait で待機中のスレッドの state が WAITING になっているかどうか。
 	 * スレッドが起きた後は RUNNABLE に戻る。
 	 */
-	@AsyncTest
-	public function state(factory:AsyncFactory):Void
+	public function test_state():Void
 	{
 		Static.log = "";
 		
 		var s:StateTestThread = new StateTestThread();
 		var t:TesterThread = new TesterThread(s);
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual(ThreadState.WAITING, s.state1);
-							Assert.areEqual(ThreadState.RUNNABLE, s.state2);
+							assertEquals(ThreadState.WAITING, s.state1);
+							assertEquals(ThreadState.RUNNABLE, s.state2);
 						}, 1000));
 		t.start();
 		
@@ -109,16 +94,15 @@ class MonitorTest
 	 * 待機時間を設定した wait で指定時間経過後、timeout で指定した実行関数に移行するかどうか。
 	 * 
 	 */
-	@AsyncTest
-	public function timeout(factory:AsyncFactory):Void
+	public function test_timeout():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new TimeoutTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("run wait wakeup2 notify ", Static.log);
+							assertEquals("run wait wakeup2 notify ", Static.log);
 						}, 1000));
 		t.start();
 		
@@ -128,18 +112,17 @@ class MonitorTest
 	 * 待機時間を設定した wait で待機中のスレッドの state が TIMED_WAITING になっているかどうか。
 	 * スレッドが起きた後は RUNNABLE に戻る。
 	 */
-	@AsyncTest
-	public function timedState(factory:AsyncFactory):Void
+	public function test_timedState():Void
 	{
 		Static.log = "";
 		
 		var s:TimedStateTestThread = new TimedStateTestThread();
 		var t:TesterThread = new TesterThread(s);
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual(ThreadState.TIMED_WAITING, s.state1);
-							Assert.areEqual(ThreadState.RUNNABLE, s.state2);
+							assertEquals(ThreadState.TIMED_WAITING, s.state1);
+							assertEquals(ThreadState.RUNNABLE, s.state2);
 						}, 1000));
 		t.start();
 		
@@ -148,16 +131,15 @@ class MonitorTest
 	/**
 	 * 終了フェーズに入る直前で wait した場合きちんと動作するかどうか。
 	 */
-	@AsyncTest
-	public function waitFinalize(factory:AsyncFactory):Void
+	public function test_waitFinalize():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new WaitFinalizeTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("wait notifyAll finalize ", Static.log);
+							assertEquals("wait notifyAll finalize ", Static.log);
 						}, 1000));
 		t.start();
 		
@@ -166,16 +148,15 @@ class MonitorTest
 	/**
 	 * 終了フェーズに入る直前で wait がタイムアウトした場合きちんと動作するかどうか。
 	 */
-	@AsyncTest
-	public function timeoutFinalize(factory:AsyncFactory):Void
+	public function test_timeoutFinalize():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new TimeoutFinaizeTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("wait finalize ", Static.log);
+							assertEquals("wait finalize ", Static.log);
 						}, 1000));
 		t.start();
 		
@@ -184,16 +165,15 @@ class MonitorTest
 	/**
 	 * 終了直前で wait した場合きちんと動作するかどうか。
 	 */
-	@AsyncTest
-	public function finalizeWait(factory:AsyncFactory):Void
+	public function test_finalizeWait():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new FinalizeWaitTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("finalize notifyAll ", Static.log);
+							assertEquals("finalize notifyAll ", Static.log);
 						}, 1000));
 		t.start();
 		
@@ -202,16 +182,15 @@ class MonitorTest
 	/**
 	 * 終了直前で wait がタイムアウトした場合きちんと動作するかどうか。
 	 */
-	@AsyncTest
-	public function finalizeTimeout(factory:AsyncFactory):Void
+	public function test_finalizeTimeout():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new FinalizeTimeoutTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("finalize ", Static.log);
+							assertEquals("finalize ", Static.log);
 						}, 1000));
 		t.start();
 		
@@ -220,16 +199,15 @@ class MonitorTest
 	/**
 	 * 終了直前で wait がタイムアウトした場合タイムアウトハンドラを実行して終了できるかどうか。
 	 */
-	@AsyncTest
-	public function finalizeTimeoutHandler(factory:AsyncFactory):Void
+	public function test_finalizeTimeoutHandler():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new FinalizeTimeoutHandlerTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("finalize wakeup ", Static.log);
+							assertEquals("finalize wakeup ", Static.log);
 						}, 1000));
 		t.start();
 		

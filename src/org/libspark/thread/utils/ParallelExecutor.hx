@@ -45,7 +45,6 @@ import org.libspark.thread.ThreadState;
 class ParallelExecutor extends Executor
 {
 	private var _index:UInt;
-	//private var _isInterrupted:Bool = false;//Redefinition of variable _isInterrupted in subclass is not allowed//!!!!!!!!!!
 	
 	/**
 	 * @private

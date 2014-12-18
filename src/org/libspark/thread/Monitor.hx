@@ -26,7 +26,14 @@
  */
 package org.libspark.thread;
 
-import org.libspark.thread.Thread;
+
+#if HXTHREAD_USE_HAXETIMER
+import haxe.Timer;
+#elseif openfl
+import flash.events.Event;
+import flash.events.TimerEvent;
+import flash.utils.Timer;
+#end
 
 //import flash.utils.SetTimeout;
 //import flash.utils.ClearTimeout;
@@ -47,7 +54,16 @@ class Monitor implements IMonitor
 	}
 	
 	private var _waitors:Array<Thread>;
-	private var _timeoutList:Map<Thread, Int>;
+	
+	#if HXTHREAD_USE_HAXETIMER
+	private var _timeoutTimerList:Map<Thread, Timer>;
+	#elseif openfl
+	private var _timeoutTimerList:Map<Thread, Timer>;
+	private var _timeoutThreadList:Map<Timer, Thread>;
+	#else
+	private var _timeoutTimerList:Map<Thread, Int>;
+	#end
+	
 	
 	/**
 	 * ウェイトセットを返します.
@@ -69,14 +85,52 @@ class Monitor implements IMonitor
 	 */
 	private function registerTimeout(thread:Thread, timeout:UInt):Void
 	{
+	
+		/*	as3 code.
 		// マップがなければ生成
-		if (_timeoutList == null) {
-			_timeoutList = new Map<Thread, Int>();//new Dictionary();
+		if (_timeoutTimerList == null) {
+			//new Dictionary();
 		}
+		//_timeoutTimerList[thread] = setTimeout(timeoutHandler, timeout, thread);//AS3 code.
+		*/
 		
-		// タイムアウトを設定して、thread をキーにして タイムアウトID を保存  
-		//_timeoutList[thread] = setTimeout(timeoutHandler, timeout, thread);//AS3 code.
-		_timeoutList[thread] = untyped __global__["flash.utils.setTimeout"](timeoutHandler, timeout, thread);
+		#if HXTHREAD_USE_HAXETIMER
+		
+		// マップがなければ生成
+		if (_timeoutTimerList == null) {
+			_timeoutTimerList = new Map<Thread, Timer>();
+		}
+		var timer:Timer = Timer.delay(function() { timeoutHandler(thread); }, timeout);
+		_timeoutTimerList[thread] = timer;
+		
+		#elseif openfl
+		
+		// マップがなければ生成
+		if (_timeoutTimerList == null) {
+			_timeoutTimerList = new Map<Thread, Timer>();
+		}
+		// タイマー配列がなければ生成
+		if (_timeoutThreadList == null) {
+			_timeoutThreadList = new Map<Timer, Thread>();
+		}
+		// タイムアウトを設定して、thread をキーにして タイマー を保存
+		var timer:Timer = new Timer(timeout, 1);
+		timer.addEventListener(TimerEvent.TIMER_COMPLETE, timeoutHandler);
+		_timeoutTimerList[thread] = timer;
+		_timeoutThreadList[timer] = thread;
+		timer.start();
+		
+		#else
+		
+		// マップがなければ生成
+		if (_timeoutTimerList == null) {
+			_timeoutTimerList = new Map<Thread, Int>();
+		}
+		// タイムアウトを設定して、thread をキーにして タイムアウトID を保存 
+		_timeoutTimerList[thread] = untyped __global__["flash.utils.setTimeout"](timeoutHandler, timeout, thread);
+		
+		#end
+		
 	}
 	
 	/**
@@ -87,23 +141,62 @@ class Monitor implements IMonitor
 	 */
 	private function unregisterTimeout(thread:Thread):Void
 	{
+		/*	as3 code.
+			// マップがなければ何もしない
+			if (_timeoutList == null) {
+				return;
+			}
+			
+			// thread をキーにして タイムアウトID を検索
+			var id:Object = _timeoutList[thread];
+			
+			// 見つかったらタイムアウトを解除する
+			if (id != null) {
+				clearTimeout(uint(id));
+				delete _timeoutList[thread];
+			}
+		*/
+		
+		
 		// マップがなければ何もしない
-		if (_timeoutList == null) {
+		if (_timeoutTimerList == null) {
 			return;
 		} 
 		
+		#if HXTHREAD_USE_HAXETIMER
+		
+		// thread をキーにして タイマー を検索 
+		var timer:Timer = _timeoutTimerList[thread];
+		// 見つかったらタイムアウトを解除する
+		if (timer != null) {
+			timer.stop();
+			_timeoutTimerList.remove(thread);
+		}
+		
+		#elseif openfl
+		
+		// thread をキーにして タイマー を検索 
+		var timer:Timer = _timeoutTimerList[thread];
+		// 見つかったらタイムアウトを解除する
+		if (timer != null) {
+			timer.removeEventListener(TimerEvent.TIMER_COMPLETE, timeoutHandler);
+			if (timer.running) timer.stop();
+			_timeoutTimerList.remove(thread);
+			_timeoutThreadList.remove(timer);
+		}
+		
+		#else
 		
 		// thread をキーにして タイムアウトID を検索 
-		var id:Dynamic = _timeoutList[thread];
-		
+		var id:Dynamic = _timeoutTimerList[thread];
 		// 見つかったらタイムアウトを解除する
 		if (id != null) {
-			//clearTimeout(Int(id));//AS3 code.
 			untyped __global__["flash.utils.clearTimeout"](Std.int(id));
-			//delete _timeoutList[thread];//as3 code.
-			_timeoutList.remove(thread);
-			
+			_timeoutTimerList.remove(thread);
 		}
+		
+		#end
+		
 	}
 	
 	/**
@@ -115,7 +208,7 @@ class Monitor implements IMonitor
 		var thread:Thread = Thread.getCurrentThread();
 		
 		// スレッドに wait するよう依頼
-		thread.monitorWait(timeout != 0, this);
+		thread.monitorWait((timeout != 0), this);
 		
 		// 待機セットに並ばせる
 		getWaitors().push(thread);
@@ -152,6 +245,7 @@ class Monitor implements IMonitor
 	 */
 	public function notifyAll():Void
 	{
+	
 		// 待機しているスレッドがいなければ何もしない
 		if (_waitors == null || _waitors.length < 1) {
 			return;
@@ -181,10 +275,10 @@ class Monitor implements IMonitor
 		
 		
 		// 待機セットを空にする
-		#if !(cpp || php)
+		#if flash
 			untyped _waitors.length = 0;
 		#else
-			_waitors.splice(0,_waitors.length);
+			_waitors.splice(0, _waitors.length);
 		#end
 		
 		// 例外が発生していた場合は再スロー
@@ -199,6 +293,72 @@ class Monitor implements IMonitor
 	 * @param	thread	タイムアウトしたスレッド
 	 * @private
 	 */
+	#if HXTHREAD_USE_HAXETIMER
+	
+	private function timeoutHandler(thread:Thread):Void
+	{
+		// タイムアウトを解除
+		unregisterTimeout(thread);
+		//
+		
+		// 既に待機セットが空になっていたら何もしない
+		if (_waitors == null || _waitors.length < 1) {
+			return;
+		}
+		
+		
+		// 待機セットから該当するスレッドを検索
+		var index:Int = Lambda.indexOf(_waitors, thread);
+		
+		// 見つからなければ何もしない
+		if (index == -1) {
+			return;
+		}
+		
+		
+		// 待機セットから削除  
+		_waitors.splice(index, 1);
+		
+		// スレッドを起こす
+		thread.monitorTimeout(this);
+	}
+	
+	#elseif openfl
+	
+	private function timeoutHandler(e:TimerEvent):Void
+	{
+		var timer:Timer = cast(e.currentTarget ,Timer);
+		var thread:Thread = _timeoutThreadList[timer];
+		
+		// タイムアウトを解除
+		unregisterTimeout(thread);
+		//
+		
+		// 既に待機セットが空になっていたら何もしない
+		if (_waitors == null || _waitors.length < 1) {
+			return;
+		}
+		
+		
+		// 待機セットから該当するスレッドを検索
+		var index:Int = Lambda.indexOf(_waitors, thread);
+		
+		// 見つからなければ何もしない
+		if (index == -1) {
+			return;
+		}
+		
+		
+		// 待機セットから削除  
+		_waitors.splice(index, 1);
+		
+		// スレッドを起こす
+		thread.monitorTimeout(this);
+		
+	}
+	
+	#else
+	
 	private function timeoutHandler(thread:Thread):Void
 	{
 		// 既に待機セットが空になっていたら何もしない
@@ -222,6 +382,8 @@ class Monitor implements IMonitor
 		// スレッドを起こす
 		thread.monitorTimeout(this);
 	}
+	
+	#end
 	
 	/**
 	 * @inheritDoc

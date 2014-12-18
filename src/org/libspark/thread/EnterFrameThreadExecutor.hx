@@ -26,8 +26,8 @@
  */
 package org.libspark.thread;
 
-import org.libspark.thread.IThreadExecutor;
 
+import org.libspark.thread.IThreadExecutor;
 import flash.display.MovieClip;
 import flash.events.Event;
 
@@ -60,6 +60,13 @@ class EnterFrameThreadExecutor implements IThreadExecutor
 		
 		_clip = new MovieClip();
 		_clip.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+		
+		
+		#if (openfl && !flash)
+		// openflのnativeターゲットではaddChild()しないとイベントが発行されない現象への対処
+		openfl.Lib.current.addChild(_clip);
+		#end
+		
 	}
 	
 	/**
@@ -70,6 +77,10 @@ class EnterFrameThreadExecutor implements IThreadExecutor
 		if (_clip == null) {
 			return;
 		}
+		
+		#if (openfl && !flash)
+		openfl.Lib.current.removeChild(_clip);
+		#end
 		
 		_clip.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
 		_clip = null;

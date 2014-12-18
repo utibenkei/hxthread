@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<!-- metadata, make sure 'package' is at least 3 segments (ie. com.mycompany.myproject) -->
+	<meta title="hxthread Test" package="org.libspark.thread.hxthreadtest" version="1.0.0" company="hxthread" />
+	
+	<!-- output -->
+	<app main="TestMain" file="TestMain" path="build" />
+	
+	<window background="#ffffff" fps="30" />
+	<window width="800" height="480" unless="mobile" />
+	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />
+	
+	<!-- classpath, haxe libs -->
+	<source path="test" />
+	<source path="../src" />
+	<haxelib name="openfl" />
+	<haxelib name="async-tests" />
+	
+	<!-- assets -->
+	<!--<icon path="assets/openfl.svg" />-->
+	<!--<assets path="assets/img" rename="img" />-->
+	
+	<!-- optimize output -->
+	<!--<haxeflag name="-dce full" />-->
+	
+	<!-- Use the timer class in time-out processing -->
+	<!--<haxedef name="HXTHREAD_USE_HAXETIMER" />-->
+	
+</project>

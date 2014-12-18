@@ -1,35 +1,21 @@
 package org.libspark.thread;
 
+import async.tests.AsyncTestCase;
 import flash.events.Event;
-import massive.munit.Assert;
-import massive.munit.async.AsyncFactory;
-import org.libspark.thread.EnterFrameThreadExecutor;
-import org.libspark.thread.Thread;
 
 
-class TesterThreadTest
+class TesterThreadTest extends AsyncTestCase
 {
 	public function new() 
 	{
-		
-	}
-	
-	@BeforeClass
-	public function beforeClass():Void
-	{
-	}
-	
-	@AfterClass
-	public function afterClass():Void
-	{
+		super();
 	}
 	
 	/**
 	 * テストに相互作用が出ないようにテスト毎にスレッドライブラリを初期化。
 	 * 通常であれば、initializeの呼び出しは一度きり。
 	 */
-	@Before
-	public function setup():Void
+	override public function setup():Void
 	{
 		Thread.initialize(new EnterFrameThreadExecutor());
 	}
@@ -37,8 +23,7 @@ class TesterThreadTest
 	/**
 	 * 念のため、終了処理もしておく
 	 */
-	@After
-	public function tearDown():Void
+	override public function tearDown():Void
 	{
 		Thread.initialize(null);
 	}
@@ -46,15 +31,14 @@ class TesterThreadTest
 	/**
 	 * TesterThread が終了した際に Event.COMPLETE が配信されるかどうか。
 	 */
-	@AsyncTest
-	public function testAsyncExample(factory:AsyncFactory):Void
+	public function testAsyncExample():Void
 	{
 		var t:TesterThread = new TesterThread(null);
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function():Void
-						{
-							Assert.isFalse(false);
-						}, 1000));
+		t.addEventListener(Event.COMPLETE, createAsync(function (e:Event) {
+				assertTrue(e.type == Event.COMPLETE);
+			}, 1000));
 		t.start();
 		
 	}
+	
 }

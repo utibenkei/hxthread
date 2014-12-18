@@ -1,42 +1,31 @@
 package org.libspark.thread;
 
+import async.tests.AsyncTestCase;
 import flash.errors.Error;
 import flash.events.Event;
 import flash.events.EventDispatcher;
 import flash.events.IEventDispatcher;
 import haxe.Timer;
-import massive.munit.Assert;
-import massive.munit.async.AsyncFactory;
 import org.libspark.thread.EnterFrameThreadExecutor;
 import org.libspark.thread.errors.InterruptedError;
 import org.libspark.thread.Thread;
 import org.libspark.thread.utils.ParallelExecutor;
 
 
-class InterruptionTest
+class InterruptionTest extends AsyncTestCase
 {
 	
 	public function new() 
 	{
-		
+		super();
 	}
 	
-	@BeforeClass
-	public function beforeClass():Void
-	{
-	}
-	
-	@AfterClass
-	public function afterClass():Void
-	{
-	}
 	
 	/**
 	 * テストに相互作用が出ないようにテスト毎にスレッドライブラリを初期化。
 	 * 通常であれば、initializeの呼び出しは一度きり。
 	 */
-	@Before
-	public function setup():Void
+	override public function setup():Void
 	{
 		Thread.initialize(new EnterFrameThreadExecutor());
 	}
@@ -44,8 +33,7 @@ class InterruptionTest
 	/**
 	 * 念のため、終了処理もしておく
 	 */
-	@After
-	public function tearDown():Void
+	override public function tearDown():Void
 	{
 		Thread.initialize(null);
 	}
@@ -56,21 +44,20 @@ class InterruptionTest
 	 * 待機中でない場合は、割り込みハンドラが実行されたり InterruptedError が発生したりすることはない。
 	 * 一度 checkInterrupted を呼び出すと、割り込みフラグがクリアされる。
 	 */
-	@AsyncTest
-	public function interrupt(factory:AsyncFactory):Void
+	public function test_interrupt():Void
 	{
 		Static.log = "";
 		
 		var i:InterruptTestThread = new InterruptTestThread();
 		var t:TesterThread = new TesterThread(i);
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("run run2 finalize ", Static.log);
-							Assert.isTrue(i.flag1);
-							Assert.isTrue(i.flag2);
-							Assert.isFalse(i.flag3);
-							Assert.isFalse(i.flag4);
+							assertEquals("run run2 finalize ", Static.log);
+							assertTrue(i.flag1);
+							assertTrue(i.flag2);
+							assertFalse(i.flag3);
+							assertFalse(i.flag4);
 						}, 1000));
 		t.start();
 		
@@ -80,18 +67,17 @@ class InterruptionTest
 	 * スレッドが待機中に割り込み、かつ割り込みハンドラが設定されている場合、割り込みハンドラが実行されるか。
 	 * 割り込みハンドラが実行される場合、割り込みフラグは設定されない。
 	 */
-	@AsyncTest
-	public function interruptedHandler(factory:AsyncFactory):Void
+	public function test_interruptedHandler():Void
 	{
 		Static.log = "";
 		
 		var i:InterruptedHandlerTestThread = new InterruptedHandlerTestThread();
 		var t:TesterThread = new TesterThread(i);
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("run interrupt interrupted finalize ", Static.log);
-							Assert.isFalse(i.flag);
+							assertEquals("run interrupt interrupted finalize ", Static.log);
+							assertFalse(i.flag);
 						}, 1000));
 		t.start();
 		
@@ -101,18 +87,17 @@ class InterruptionTest
 	 * スレッドが待機中に割り込み、かつ割り込みハンドラが設定されていない場合、InterruptedError が発生するか。
 	 * InterruptedError が発生する場合、割り込みフラグは設定されない。
 	 */
-	@AsyncTest
-	public function interruptedException(factory:AsyncFactory):Void
+	public function test_interruptedException():Void
 	{
 		Static.log = "";
 		
 		var i:InterruptedExceptionTestThread = new InterruptedExceptionTestThread();
 		var t:TesterThread = new TesterThread(i);
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("run interrupt interrupted finalize ", Static.log);
-							Assert.isFalse(i.flag);
+							assertEquals("run interrupt interrupted finalize ", Static.log);
+							assertFalse(i.flag);
 						}, 1000));
 		t.start();
 		
@@ -121,16 +106,15 @@ class InterruptionTest
 	/**
 	 * 割り込みハンドラが実行のたびにリセットされているかどうか
 	 */
-	@AsyncTest
-	public function clearInterruptedHandler(factory:AsyncFactory):Void
+	public function test_clearInterruptedHandler():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ClearInterruptedHandlerTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("run interrupt runInterrupted interrupt runInterrupted2 finalize ", Static.log);
+							assertEquals("run interrupt runInterrupted interrupt runInterrupted2 finalize ", Static.log);
 						}, 1000));
 		t.start();
 		
@@ -141,16 +125,15 @@ class InterruptionTest
 	 * 
 	 * @see http://www.libspark.org/ticket/117
 	 */
-	@AsyncTest
-	public function interruptionBeforeEvent(factory:AsyncFactory):Void
+	public function test_interruptionBeforeEvent():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new InterruptionBeforeEventTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("run EventWait::run interrupt EventWait::eventInterrupted dispatch EventWait::finalize dispatch2 finalize ", Static.log);
+							assertEquals("run EventWait::run interrupt EventWait::eventInterrupted dispatch EventWait::finalize dispatch2 finalize ", Static.log);
 						}, 1000));
 		t.start();
 		
@@ -161,16 +144,15 @@ class InterruptionTest
 	 * 
 	 * @see http://www.libspark.org/ticket/117
 	 */
-	@AsyncTest
-	public function interruptionAfterEvent(factory:AsyncFactory):Void
+	public function test_interruptionAfterEvent():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new InterruptionAfterEventTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("run EventWait::run dispatch EventWait::eventHandler EventWait::run interrupt EventWait::eventInterrupted EventWait::finalize dispatch2 finalize ", Static.log);
+							assertEquals("run EventWait::run dispatch EventWait::eventHandler EventWait::run interrupt EventWait::eventInterrupted EventWait::finalize dispatch2 finalize ", Static.log);
 						}, 1000));
 		t.start();
 		
@@ -182,16 +164,15 @@ class InterruptionTest
 	 * @see http://www.libspark.org/ticket/117
 	 * @see http://www.libspark.org/ticket/104
 	 */
-	@AsyncTest
-	public function childInterruption(factory:AsyncFactory):Void
+	public function test_childInterruption():Void
 	{
 		Static.log = "";
 		
 		var t:TesterThread = new TesterThread(new ChildInterruptionTestThread());
 		
-		t.addEventListener(Event.COMPLETE, factory.createHandler(this, function(e:Event):Void
+		t.addEventListener(Event.COMPLETE, createAsync(function(e:Event):Void
 						{
-							Assert.areEqual("run EventWait::run EventWait::run interrupt EventWait::eventInterrupted EventWait::eventInterrupted dispatch EventWait::finalize EventWait::finalize dispatch2 finalize ", Static.log);
+							assertEquals("run EventWait::run EventWait::run interrupt EventWait::eventInterrupted EventWait::eventInterrupted dispatch EventWait::finalize EventWait::finalize dispatch2 finalize ", Static.log);
 						}, 1000));
 		t.start();
 		

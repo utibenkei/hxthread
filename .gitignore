@@ -1,5 +1,4 @@
 /tests_flash/.temp
-/tests_flash/old
 /tests_flash/build
 /tests_flash/report
 *.swf
@@ -9,3 +8,16 @@
 /samples_flash/libs/*.swc
 /samples_flash/tweenAndEvent1
 /samples_flash/tweenAndEvent2
+/tests_openfl/.temp
+/tests_openfl/report
+/tests_openfl/build
+/samples_openfl/hello/bin
+/tests_openfl_munit
+/samples_openfl/loadImages/bin
+/samples_openfl/test
+/samples_openfl/progress/bin
+/samples_openfl/urlloader/bin
+/samples_openfl/urlloader/bin_with_progress
+/samples_openfl/tweenx/bin
+/samples_openfl/tweenx/bin_2
+/samples_openfl/autoShowHide/bin

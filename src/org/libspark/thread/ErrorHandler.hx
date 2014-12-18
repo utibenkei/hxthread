@@ -25,7 +25,6 @@
  * 
  */
 package org.libspark.thread;
-import flash.utils.Function;
 
 
 /**
@@ -35,14 +34,14 @@ import flash.utils.Function;
 class ErrorHandler
 {
 	@:allow(org.libspark.thread)
-	public function new(handler:Function, reset:Bool, autoTermination:Bool)
+	public function new(handler:Dynamic->Thread->Void, reset:Bool, autoTermination:Bool)
 	{
 		this.handler = handler;
 		this.reset = reset;
 		this.autoTermination = autoTermination;
 	}
 	
-	public var handler:Function;
+	public var handler:Dynamic->Thread->Void;
 	public var reset:Bool;
 	public var autoTermination:Bool;
 }

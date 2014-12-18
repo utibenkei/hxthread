@@ -188,8 +188,6 @@ class FileDownloadThread extends Thread implements IProgressNotifier
 	 */
 	private function progressHandler(e:ProgressEvent):Void
 	{
-		//trace(e);
-		
 		// 必要であれば開始を通知
 		notifyStartIfNeeded(e.bytesTotal);
 		
