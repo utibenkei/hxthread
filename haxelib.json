@@ -1,0 +1,12 @@
+{
+  "name": "hxthread",
+  "url" : "https://github.com/utibenkei/hxthread",
+  "license": "MIT",
+  "tags": ["flash", "openfl", "thread", "task"],
+  "description": "Haxe/OpenFL port of ActionScript Thread Library(Soumen)",
+  "version": "1.0.0",
+  "releasenote": "Initial release, everything is working correctly",
+  "contributors": ["utibenkei"],
+  "dependencies": {},
+  "classPath":"src/"
+}
