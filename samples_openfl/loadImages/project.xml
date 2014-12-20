@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<!-- metadata, make sure 'package' is at least 3 segments (ie. com.mycompany.myproject) -->
+	<meta title="ImageAndSoundSample Example" package="org.libspark.thread.samples.imageandsoundsampleexample" version="1.0.0" company="hxthread" />
+	
+	<!-- output -->
+	<app main="ImageBase" file="ImageBase" path="bin" />
+	
+	<window background="#FFFFFF" fps="30" />
+	<window width="800" height="480" unless="mobile" />
+	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />
+	
+	<!-- classpath, haxe libs -->
+	<source path="src" />
+	<source path="../../src" />
+	<haxelib name="openfl" />
+	
+	<!-- assets -->
+	<icon path="assets/openfl.svg" />
+	<assets path="assets/img" rename="img" />
+	<assets path="image" rename="image"/>
+	<assets path="xml" rename="xml" />
+	<assets path="sound" rename="sound" include="*.mp3|*.wav" if="flash" />
+	<assets path="sound" rename="sound" include="*" unless="flash" />
+	
+	<!-- optimize output
+	<haxeflag name="-dce full" /> -->
+	
+	<!-- Use the timer class in time-out processing -->
+	<!--<haxedef name="HXTHREAD_USE_HAXETIMER" />-->
+	
+	<!-- Use the loadBytes function in LoderThread loading processing -->
+	<!--<haxedef name="HXTHREAD_USE_LOADBYTES_LOADER" if="html5" />-->
+	
+	<!-- Use the loadCompressedDataFromByteArray function in SoundLoderThread loading processing -->
+	<haxedef name="HXTHREAD_USE_LOADBYTES_SOUNDLOADER" if="native" />
+	
+</project>
