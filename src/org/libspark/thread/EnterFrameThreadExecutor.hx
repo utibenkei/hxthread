@@ -62,8 +62,8 @@ class EnterFrameThreadExecutor implements IThreadExecutor
 		_clip.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
 		
 		
-		#if (openfl && !flash)
-		// openflのnativeターゲットではaddChild()しないとイベントが発行されない現象への対処
+		#if (native || html5)
+		// openflの native/html5 ターゲットではaddChild()しないとイベントが発行されない現象への対処
 		openfl.Lib.current.addChild(_clip);
 		#end
 		
@@ -78,7 +78,7 @@ class EnterFrameThreadExecutor implements IThreadExecutor
 			return;
 		}
 		
-		#if (openfl && !flash)
+		#if (native || html5)
 		openfl.Lib.current.removeChild(_clip);
 		#end
 		

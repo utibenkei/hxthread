@@ -226,7 +226,7 @@ class MultiProgress extends EventDispatcher implements IProgress
 	public function removeProgress(progress:IProgress):Void
 	{
 		var progresses:Array<ProgressHolder> = _progresses;
-		var l:Int = progresses.length;
+		var l:UInt = progresses.length;
 		for (i in 0...l){
 			if (progresses[i].progress == progress) {
 				unregisterListener(progress);
