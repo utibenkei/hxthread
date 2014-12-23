@@ -4,8 +4,8 @@
   "license": "MIT",
   "tags": ["flash", "openfl", "thread", "task"],
   "description": "Haxe/OpenFL port of ActionScript Thread Library(Soumen)",
-  "version": "1.0.0",
-  "releasenote": "Initial release, everything is working correctly",
+  "version": "1.0.1",
+  "releasenote": "LoaderThread, URLLoaderThread, SoundLoaderThread bug fix.",
   "contributors": ["utibenkei"],
   "dependencies": {},
   "classPath":"src/"
