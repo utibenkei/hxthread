@@ -39,6 +39,10 @@ import org.libspark.thread.utils.IProgress;
 import org.libspark.thread.utils.IProgressNotifier;
 import org.libspark.thread.utils.Progress;
 
+#if (native || (flash && HXTHREAD_USE_LOADBYTES_LOADER))
+import org.libspark.thread.threads.utils.FunctionThread;
+#end
+
 #if HXTHREAD_USE_LOADBYTES_LOADER
 import flash.net.URLLoaderDataFormat;
 import flash.net.URLLoader;
@@ -161,26 +165,17 @@ class LoaderThread extends Thread implements IProgressNotifier
 			Thread.interrupted(interruptedHandler_bin);
 		#end
 		
-		
-		#if (native || html5)
-			// １フレーム遅らせてからロード開始する
-			// openflの native/html5 ターゲットではローカル上のファイルをロードした際に瞬時に完了イベントが発行される？
+		// ロード開始
+		#if (native)
+			// イベントリスナーの適用を待ってからロード開始する
+			// openflの native ターゲットではローカル上の画像ファイルをロードした際に同期的に完了イベントが発行される？
 			// (internalExecute()内のeventHandler.register()でリスナーが設定される前にロード完了イベントが発行されてしまうことへの対処)
-			openfl.Lib.current.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+			var funcThread = new FunctionThread(function() { load(); }, []);
+			funcThread.start();
 		#else
-			// ロード開始
 			load();
 		#end
 	}
-	
-	#if (native || html5)
-	private function enterFrameHandler(e:Event):Void
-	{
-		openfl.Lib.current.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
-		// ロード開始
-		load();
-	}
-	#end
 	
 	private function load():Void
 	{
@@ -274,10 +269,6 @@ class LoaderThread extends Thread implements IProgressNotifier
 	 */
 	private function interruptedHandler():Void
 	{
-		#if (native || html5)
-		openfl.Lib.current.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
-		#end
-		
 		// 必要であれば開始を通知 (問題が発生しなければ通常 progressHandler で通知される)
 		notifyStartIfNeeded(0);
 		
@@ -348,9 +339,10 @@ class LoaderThread extends Thread implements IProgressNotifier
 		
 		// ロード開始
 		#if flash
-			// ※falsh　ターゲットの場合、"エラーがある場合は loadBytes() メソッドを呼び出した直後にイベントが発生する為、必ずイベントを先に設定してからこのメソッドを呼び出す必要があります。"
-			// ※イベントが設定される前にIOエラーが発行されることがあるので、リスナーが設定される1フレーム先でロード開始する
-			openfl.Lib.current.addEventListener(Event.ENTER_FRAME, enterFrameHandler_bin);
+			// flash ターゲットの場合、イベントリスナーの適用を待ってからロード開始する
+			// ※"エラーがある場合は loadBytes() メソッドを呼び出した直後にイベントが発生する為、必ずイベントを先に設定してからこのメソッドを呼び出す必要があります。"
+			var funcThread = new FunctionThread(function() { _loader.loadBytes(_binLoader.data, _context); }, []);
+			funcThread.start();
 		#elseif native
 			// native ターゲットの場合、完了を通知（loaderにロード完了イベントが発行されずに同期的に処理されるため）
 			_loader.loadBytes(_binLoader.data, _context);
@@ -366,16 +358,6 @@ class LoaderThread extends Thread implements IProgressNotifier
 		#end
 		
 	}
-	
-	#if flash
-	private function enterFrameHandler_bin(e:Event):Void
-	{
-		openfl.Lib.current.removeEventListener(Event.ENTER_FRAME, enterFrameHandler_bin);
-		
-		// ロード開始
-		_loader.loadBytes(_binLoader.data, _context);
-	}
-	#end
 	
 	/**
 	 * IOErrorEvent.IO_ERROR ハンドラ
@@ -401,10 +383,6 @@ class LoaderThread extends Thread implements IProgressNotifier
 	 */
 	private function interruptedHandler_bin():Void
 	{
-		#if flash
-		openfl.Lib.current.removeEventListener(Event.ENTER_FRAME, enterFrameHandler_bin);
-		#end
-		
 		// 必要であれば開始を通知 (問題が発生しなければ通常 progressHandler で通知される)
 		notifyStartIfNeeded(0);
 		

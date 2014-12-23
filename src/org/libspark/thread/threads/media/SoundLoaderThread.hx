@@ -39,6 +39,10 @@ import org.libspark.thread.utils.IProgress;
 import org.libspark.thread.utils.IProgressNotifier;
 import org.libspark.thread.utils.Progress;
 
+#if (native || html5)
+import org.libspark.thread.threads.utils.FunctionThread;
+#end
+
 #if (HXTHREAD_USE_LOADBYTES_SOUNDLOADER && !html5)
 import flash.net.URLLoaderDataFormat;
 import flash.net.URLLoader;
@@ -156,35 +160,30 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 		// 割り込みハンドラを設定
 		Thread.interrupted(interruptedHandler);
 		
+		// ロード開始
 		#if (native || html5)
-			// １フレーム遅らせてからロード開始する
-			// openflの native/html5 ターゲットではローカル上のファイルをロードした際に瞬時に完了イベントが発行される？
+			// イベントリスナーの適用を待ってからロード開始する
+			// openflの native 及び html5 ターゲットではローカル上のサウンドファイルをロードした際に同期的に完了イベントが発行される？
 			// (internalExecute()内のeventHandler.register()でリスナーが設定される前にロード完了イベントが発行されてしまうことへの対処)
-			openfl.Lib.current.addEventListener(Event.ENTER_FRAME, enterFrameHandler);
+			var funcThread = new FunctionThread(function() { load(); }, []);
+			funcThread.start();
 		#else
-			// ロード開始
-			#if !HXTHREAD_USE_LOADBYTES_SOUNDLOADER
-				_sound.load(_request, _context);
-			#else
-				_binLoader.dataFormat = URLLoaderDataFormat.BINARY;
-				_binLoader.load(_request);
-			#end
+			load();
 		#end
 	}
 	
-	#if (native || html5)
-	private function enterFrameHandler(e:Event):Void
+	private function load():Void
 	{
-		openfl.Lib.current.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
-		// ロード開始
 		#if !(HXTHREAD_USE_LOADBYTES_SOUNDLOADER && !html5)
+			// html5ターゲットではIOエラーイベントが発行されない？
+			// 内部JSライブラリのSoundJSはv0.5.2、"fileerror"イベントが実装されたのはv0.6からのもよう。lime側の対応待ち
 			_sound.load(_request, _context);
+			
 		#else
 			_binLoader.dataFormat = URLLoaderDataFormat.BINARY;
 			_binLoader.load(_request);
 		#end
 	}
-	#end
 	
 	/**
 	 * イベントハンドラの登録
@@ -278,10 +277,6 @@ class SoundLoaderThread extends Thread implements IProgressNotifier
 	 */
 	private function interruptedHandler():Void
 	{
-		#if (native || html5)
-		openfl.Lib.current.removeEventListener(Event.ENTER_FRAME, enterFrameHandler);
-		#end
-		
 		// 必要であれば開始を通知 (問題が発生しなければ通常 progressHandler で通知される)
 		notifyStartIfNeeded(0);
 		
